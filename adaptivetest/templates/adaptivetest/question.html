@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Question {{ question_number }}</h2>
+    <p>{{ question.text }}</p>
+
+    <form method="POST" action = "{% url 'question' session_id %}">
+    {% csrf_token %}
+    {% for label, choice_text in question.choices.items %}
+        <label>
+        <input type="radio" name="answer" value="{{ label }}" required>
+        {{ label }}: {{ choice_text }}
+        </label><br>
+    {% endfor %}
+    <button type="submit">Submit</button>
+    </form>
+{% endblock %}

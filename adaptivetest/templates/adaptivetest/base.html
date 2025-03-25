@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	{% load static %}
+	<link rel="stylesheet" href=" {% static 'adaptivetest/css/adaptivetest.css' %}">
+	<title>{% block title %}Default Page{% endblock %}</title>
+
+</head>
+<body>
+	<div id="id_header_div">
+		<header class = 'banner'>
+			
+			<h1 id = "id_site_name">Lexplore</h1>
+
+			<div class = "links">
+				<nav>
+					{% block links %}
+					<a href="{% url 'home' %}">Home</a>
+					{% endblock %}
+				</nav>
+			</div>
+
+		</header>
+	</div>
+	<hr/>
+	<div id = "content">
+		{% block content %}
+		<h2> Welcome to Lexplore's Adaptive Test</h2>
+		{% endblock %}
+	</div>
+</body>
+</html>

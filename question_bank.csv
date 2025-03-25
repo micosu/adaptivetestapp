@@ -1,0 +1,103 @@
+text,choices,correct_answer,discrimination,difficulty,guessing
+Choose the word that has a similar meaning to AGRIBUSINESS,"{""A"": ""FARMING INDUSTRY"", ""B"": ""COMMERCE"", ""C"": ""AGRICULTURE SCHOOL""}","A",1.86,2.80,0.33
+Choose the word that has a similar meaning to SYSTOLIC,"{""A"": ""RELAXATION"", ""B"": ""CONTRACTION"", ""C"": ""BREATHING""}","B",1.82,2.68,0.33
+Choose the word that has a similar meaning to STOLID,"{""A"": ""SOLID"", ""B"": ""EMOTIONAL"", ""C"": ""IMPASSIVE""}","C",1.80,2.56,0.33
+Choose the word that has a similar meaning to PERTURBATION,"{""A"": ""DISTURBANCE"", ""B"": ""CALCULATION"", ""C"": ""REVERSAL""}","A",1.80,2.56,0.33
+Choose the word that has a similar meaning to PLATITUDE,"{""A"": ""ALTITUDE"", ""B"": ""CLICHÉ"", ""C"": ""GRATITUDE""}","B",1.80,2.56,0.33
+Choose the word that has a similar meaning to PHARMA,"{""A"": ""FARM"", ""B"": ""PHARMACEUTICAL INDUSTRY"", ""C"": ""PHARMACY""}","B",1.80,2.56,0.33
+Choose the word that has a similar meaning to IMPEND,"{""A"": ""SUSPEND"", ""B"": ""THREATEN"", ""C"": ""SPEND""}","B",1.78,2.44,0.33
+Choose the word that has a similar meaning to PHONETICALLY,"{""A"": ""PHONETICS"", ""B"": ""SOUND-BASED"", ""C"": ""PHONE-RELATED""}","B",1.78,2.44,0.33
+Choose the word that has a similar meaning to STENT,"{""A"": ""TUBE"", ""B"": ""SCENT"", ""C"": ""STINT""}","A",1.78,2.44,0.33
+Choose the word that has a similar meaning to MORTIFY,"{""A"": ""KILL"", ""B"": ""EMBARRASS"", ""C"": ""FORTIFY""}","B",1.78,2.44,0.33
+Choose the word that has a similar meaning to PALPITATION,"{""A"": ""MEDITATION"", ""B"": ""CONSULTATION"", ""C"": ""RAPID HEARTBEAT""}","C",1.76,2.32,0.33
+Choose the word that has a similar meaning to DOTING,"{""A"": ""EXCESSIVELY FOND"", ""B"": ""NOTING"", ""C"": ""DOTTING""}","A",1.76,2.32,0.33
+Choose the word that has a similar meaning to DERIVATIVE,"{""A"": ""RIVER"", ""B"": ""DERIVED"", ""C"": ""ORIGINAL""}","B",1.74,2.20,0.33
+Choose the word that has a similar meaning to CREOSOTE,"{""A"": ""WOOD PRESERVATIVE"", ""B"": ""CREATED"", ""C"": ""CREATURE""}","A",1.74,2.20,0.33
+Choose the word that has a similar meaning to PURPOSELESSLY,"{""A"": ""NEEDLESSLY"", ""B"": ""PURPOSEFULLY"", ""C"": ""AIMLESSLY""}","C",1.74,2.20,0.33
+Choose the word that has a similar meaning to WORLDVIEW,"{""A"": ""VIEWING"", ""B"": ""PERSPECTIVE"", ""C"": ""WORLD MAP""}","B",1.74,2.20,0.33
+Choose the word that has a similar meaning to IDOLIZE,"{""A"": ""WORSHIP"", ""B"": ""IDOL"", ""C"": ""IDEALIZE""}","A",1.72,2.08,0.33
+Choose the word that has a similar meaning to ELECTROMAGNETISM,"{""A"": ""ELECTRICITY"", ""B"": ""ELECTRICAL MAGNETISM"", ""C"": ""MAGNETIC FIELD""}","B",1.72,2.08,0.33
+Choose the word that has a similar meaning to FRUCTOSE,"{""A"": ""FRUIT"", ""B"": ""SUGAR"", ""C"": ""FRUCTIFY""}","B",1.72,2.08,0.33
+Choose the word that has a similar meaning to VELD,"{""A"": ""FIELD"", ""B"": ""GRASSLAND"", ""C"": ""VELVET""}","B",1.72,2.08,0.33
+Choose the word that has a similar meaning to DECAFFEINATED,"{""A"": ""CAFFEINATED"", ""B"": ""WITHOUT CAFFEINE"", ""C"": ""DECADENT""}","B",1.70,1.96,0.33
+Choose the word that has a similar meaning to STURDILY,"{""A"": ""STURDY"", ""B"": ""STRONGLY"", ""C"": ""STEADILY""}","B",1.70,1.96,0.33
+Choose the word that has a similar meaning to TELEPATHY,"{""A"": ""MIND READING"", ""B"": ""TELEPHONE"", ""C"": ""TELEVISION""}","A",1.70,1.96,0.33
+Choose the word that has a similar meaning to LEGITIMATE,"{""A"": ""LEGISLATE"", ""B"": ""LEGAL"", ""C"": ""VALID""}","C",1.70,1.96,0.33
+Choose the word that has a similar meaning to MISALLIANCE,"{""A"": ""ALLIANCE"", ""B"": ""MISALIGNMENT"", ""C"": ""UNSUITABLE UNION""}","C",1.68,1.84,0.33
+Choose the word that has a similar meaning to SELFISHLY,"{""A"": ""GENEROUSLY"", ""B"": ""EGOISTICALLY"", ""C"": ""SELF-AWARE""}","B",1.68,1.84,0.33
+Choose the word that has a similar meaning to DELUXE,"{""A"": ""LUXURY"", ""B"": ""DELAYED"", ""C"": ""DELIVERED""}","A",1.68,1.84,0.33
+Choose the word that has a similar meaning to GRIEF,"{""A"": ""BRIEF"", ""B"": ""SORROW"", ""C"": ""GREAT""}","B",1.64,1.60,0.33
+Choose the word that has a similar meaning to CAW,"{""A"": ""LAW"", ""B"": ""CAT"", ""C"": ""BIRD CRY""}","C",1.64,1.60,0.33
+Choose the word that has a similar meaning to CRITICISM,"{""A"": ""CRITIQUE"", ""B"": ""CRITICAL"", ""C"": ""CRISIS""}","A",1.64,1.60,0.33
+Choose the word that has a similar meaning to DESERVEDLY,"{""A"": ""WRONGLY"", ""B"": ""OBSERVED"", ""C"": ""JUSTIFIABLY""}","C",1.64,1.60,0.33
+Choose the word that has a similar meaning to SAFARI,"{""A"": ""EXPEDITION"", ""B"": ""SAFETY"", ""C"": ""SURFING""}","A",1.64,1.60,0.33
+Choose the word that has a similar meaning to TICKLE,"{""A"": ""TITILLATE"", ""B"": ""PICKLE"", ""C"": ""TACKLE""}","A",1.62,1.48,0.33
+Choose the word that has a similar meaning to SUITCASE,"{""A"": ""SUIT"", ""B"": ""CASE"", ""C"": ""LUGGAGE""}","C",1.62,1.48,0.33
+Choose the word that has a similar meaning to THOUGHTFULLY,"{""A"": ""THOROUGHLY"", ""B"": ""CONSIDERATELY"", ""C"": ""THOUGHTLESS""}","B",1.62,1.48,0.33
+Choose the word that has a similar meaning to CORNEA,"{""A"": ""CORN"", ""B"": ""EYE COVERING"", ""C"": ""CORNER""}","B",1.62,1.48,0.33
+Choose the word that has a similar meaning to ADMIRE,"{""A"": ""APPRECIATE"", ""B"": ""ADMIRAL"", ""C"": ""ADMIT""}","A",1.60,1.36,0.33
+Choose the word that has a similar meaning to BAGEL,"{""A"": ""BREAD ROLL"", ""B"": ""BAG"", ""C"": ""BEAGLE""}","A",1.60,1.36,0.33
+Choose the word that has a similar meaning to EMPLOYMENT,"{""A"": ""WORK"", ""B"": ""EMPLOYEE"", ""C"": ""UNEMPLOYED""}","A",1.60,1.36,0.33
+Choose the word that has a similar meaning to MAGNET,"{""A"": ""MAGNITUDE"", ""B"": ""ATTRACTIVE OBJECT"", ""C"": ""MAGNETIC""}","B",1.60,1.36,0.33
+Choose the word that has a similar meaning to ASSASSINATION,"{""A"": ""ASSISTANT"", ""B"": ""MURDER"", ""C"": ""ASSIGNMENT""}","B",1.58,1.24,0.33
+Choose the word that has a similar meaning to VALUABLE,"{""A"": ""VALVE"", ""B"": ""AVAILABLE"", ""C"": ""WORTHWHILE""}","C",1.58,1.24,0.33
+Choose the word that has a similar meaning to WORTHY,"{""A"": ""WORTH"", ""B"": ""WORLDLY"", ""C"": ""DESERVING""}","C",1.58,1.24,0.33
+Choose the word that has a similar meaning to MONGOOSE,"{""A"": ""SMALL PREDATOR"", ""B"": ""GOOSE"", ""C"": ""MONITOR""}","A",1.58,1.24,0.33
+Choose the word that has a similar meaning to MOTIVATION,"{""A"": ""INCENTIVE"", ""B"": ""MOTION"", ""C"": ""MOTIVE""}","A",1.58,1.24,0.33
+Choose the word that has a similar meaning to GREET,"{""A"": ""GREAT"", ""B"": ""WELCOME"", ""C"": ""MEET""}","B",1.58,1.24,0.33
+Choose the word that has a similar meaning to MILKSHAKE,"{""A"": ""MILK"", ""B"": ""MILK DRINK"", ""C"": ""SHAKING""}","B",1.56,1.12,0.33
+Choose the word that has a similar meaning to TOTALLY,"{""A"": ""COMPLETELY"", ""B"": ""TOTAL"", ""C"": ""TOTALITY""}","A",1.56,1.12,0.33
+Choose the word that has a similar meaning to UNEVENLY,"{""A"": ""IRREGULARLY"", ""B"": ""EVENLY"", ""C"": ""UNEVEN""}","A",1.56,1.12,0.33
+Choose the word that has a similar meaning to UNDERWATER,"{""A"": ""WATER"", ""B"": ""UNDER"", ""C"": ""SUBMERGED""}","C",1.54,1.00,0.33
+Choose the word that has a similar meaning to REALIZE,"{""A"": ""UNDERSTAND"", ""B"": ""REAL"", ""C"": ""REALISTIC""}","A",1.54,1.00,0.33
+Choose the word that has a similar meaning to CLASSIC,"{""A"": ""CLASSY"", ""B"": ""TIMELESS"", ""C"": ""CLASS""}","B",1.54,1.00,0.33
+Choose the word that has a similar meaning to DUCK,"{""A"": ""DODGE"", ""B"": ""BIRD"", ""C"": ""DECK""}","A",1.52,0.88,0.33
+Choose the word that has a similar meaning to DASH,"{""A"": ""DISH"", ""B"": ""RUSH"", ""C"": ""CASH""}","B",1.52,0.88,0.33
+Choose the word that has a similar meaning to COMPANY,"{""A"": ""BUSINESS"", ""B"": ""COMPANION"", ""C"": ""COMPARE""}","A",1.52,0.88,0.33
+Choose the word that has a similar meaning to SOUTHERN,"{""A"": ""SOUTH"", ""B"": ""SOUTHERLY"", ""C"": ""SMOTHER""}","B",1.52,0.88,0.33
+Choose the word that has a similar meaning to HUSBAND,"{""A"": ""HUSBANDRY"", ""B"": ""SPOUSE"", ""C"": ""HOUSE""}","B",1.52,0.88,0.33
+Choose the word that has a similar meaning to MASK,"{""A"": ""COVER"", ""B"": ""TASK"", ""C"": ""FLASK""}","A",1.52,0.88,0.33
+Choose the word that has a similar meaning to SCARF,"{""A"": ""SCARE"", ""B"": ""NECKWEAR"", ""C"": ""SCORCH""}","B",1.52,0.88,0.33
+Choose the word that has a similar meaning to LIP,"{""A"": ""MOUTH PART"", ""B"": ""SLIP"", ""C"": ""LID""}","A",1.52,0.88,0.33
+Choose the word that has a similar meaning to SANDY,"{""A"": ""CANDY"", ""B"": ""FULL OF SAND"", ""C"": ""SAND""}","B",1.48,0.64,0.33
+Choose the word that has a similar meaning to JACKET,"{""A"": ""COAT"", ""B"": ""JACK"", ""C"": ""RACKET""}","A",1.48,0.64,0.33
+Choose the word that has a similar meaning to SEA,"{""A"": ""SEE"", ""B"": ""OCEAN"", ""C"": ""SEAT""}","B",1.48,0.64,0.33
+Choose the word that has a similar meaning to AWAKE,"{""A"": ""WAKE"", ""B"": ""ALERT"", ""C"": ""AWARE""}","B",1.48,0.64,0.33
+Choose the word that has a similar meaning to SPACE,"{""A"": ""SPADE"", ""B"": ""AREA"", ""C"": ""SPARE""}","B",1.48,0.64,0.33
+Choose the word that has a similar meaning to FOREST,"{""A"": ""FORGET"", ""B"": ""WOODS"", ""C"": ""FORREST""}","B",1.48,0.64,0.33
+Choose the word that has a similar meaning to ANSWER,"{""A"": ""QUESTION"", ""B"": ""REPLY"", ""C"": ""DANCER""}","B",1.48,0.64,0.33
+Choose the word that has a similar meaning to PLANT,"{""A"": ""VEGETATION"", ""B"": ""PLANET"", ""C"": ""PLANK""}","A",1.48,0.64,0.33
+Choose the word that has a similar meaning to UNHAPPY,"{""A"": ""HAPPY"", ""B"": ""SAD"", ""C"": ""UNHAPPILY""}","B",1.46,0.52,0.33
+Choose the word that has a similar meaning to WAIT,"{""A"": ""PAUSE"", ""B"": ""WAIST"", ""C"": ""WEIGHT""}","A",1.46,0.52,0.33
+Choose the word that has a similar meaning to JUMP,"{""A"": ""PUMP"", ""B"": ""LEAP"", ""C"": ""BUMP""}","B",1.46,0.52,0.33
+Choose the word that has a similar meaning to TABLE,"{""A"": ""DESK"", ""B"": ""TABLET"", ""C"": ""STABLE""}","A",1.46,0.52,0.33
+Choose the word that has a similar meaning to FIT,"{""A"": ""FAT"", ""B"": ""SUITABLE"", ""C"": ""FEET""}","B",1.46,0.52,0.33
+Choose the word that has a similar meaning to JOB,"{""A"": ""JOG"", ""B"": ""OCCUPATION"", ""C"": ""MOB""}","B",1.46,0.52,0.33
+Choose the word that has a similar meaning to BROTHER,"{""A"": ""BOTHER"", ""B"": ""SIBLING"", ""C"": ""BROTH""}","B",1.46,0.52,0.33
+Choose the word that has a similar meaning to TALK,"{""A"": ""SPEAK"", ""B"": ""WALK"", ""C"": ""STALK""}","A",1.44,0.40,0.33
+Choose the word that has a similar meaning to TEACH,"{""A"": ""TEAM"", ""B"": ""REACH"", ""C"": ""INSTRUCT""}","C",1.44,0.40,0.33
+Choose the word that has a similar meaning to RUNNER,"{""A"": ""JOGGER"", ""B"": ""RUN"", ""C"": ""RUNNY""}","A",1.42,0.28,0.33
+Choose the word that has a similar meaning to DRINK,"{""A"": ""BEVERAGE"", ""B"": ""DRUNK"", ""C"": ""SINK""}","A",1.42,0.28,0.33
+Choose the word that has a similar meaning to WATCH,"{""A"": ""OBSERVE"", ""B"": ""CLOCK"", ""C"": ""BATCH""}","A",1.42,0.28,0.33
+Choose the word that has a similar meaning to CLAP,"{""A"": ""APPLAUD"", ""B"": ""CLIP"", ""C"": ""SLAP""}","A",1.42,0.28,0.33
+Choose the word that has a similar meaning to DRIVE,"{""A"": ""DIVE"", ""B"": ""STEER"", ""C"": ""DRIP""}","B",1.42,0.28,0.33
+Choose the word that has a similar meaning to PET,"{""A"": ""ANIMAL COMPANION"", ""B"": ""PAT"", ""C"": ""SET""}","A",1.42,0.28,0.33
+Choose the word that has a similar meaning to HURT,"{""A"": ""HEART"", ""B"": ""INJURE"", ""C"": ""HUNT""}","B",1.42,0.28,0.33
+Choose the word that has a similar meaning to SUNNY,"{""A"": ""BRIGHT"", ""B"": ""FUNNY"", ""C"": ""SUN""}","A",1.42,0.28,0.33
+Choose the word that has a similar meaning to HELP,"{""A"": ""ASSIST"", ""B"": ""HELPER"", ""C"": ""HEAP""}","A",1.40,0.16,0.33
+Choose the word that has a similar meaning to HOLE,"{""A"": ""WHOLE"", ""B"": ""OPENING"", ""C"": ""HOLD""}","B",1.40,0.16,0.33
+Choose the word that has a similar meaning to CUT,"{""A"": ""CUTE"", ""B"": ""SLICE"", ""C"": ""CAT""}","B",1.40,0.16,0.33
+Choose the word that has a similar meaning to SCHOOL,"{""A"": ""EDUCATION PLACE"", ""B"": ""SCHOLAR"", ""C"": ""STOOL""}","A",1.40,0.16,0.33
+Choose the word that has a similar meaning to ROAD,"{""A"": ""PATH"", ""B"": ""TOAD"", ""C"": ""READ""}","A",1.40,0.16,0.33
+Choose the word that has a similar meaning to FLOWER,"{""A"": ""BLOOM"", ""B"": ""FLOUR"", ""C"": ""FLOW""}","A",1.40,0.16,0.33
+Choose the word that has a similar meaning to PARK,"{""A"": ""RECREATION AREA"", ""B"": ""BARK"", ""C"": ""SPARK""}","A",1.40,0.16,0.33
+Choose the word that has a similar meaning to HIDE,"{""A"": ""RIDE"", ""B"": ""CONCEAL"", ""C"": ""WIDE""}","B",1.40,0.16,0.33
+Choose the word that has a similar meaning to CATCH,"{""A"": ""GRAB"", ""B"": ""PATCH"", ""C"": ""MATCH""}","A",1.38,0.04,0.33
+Choose the word that has a similar meaning to MAN,"{""A"": ""MALE"", ""B"": ""FAN"", ""C"": ""CAN""}","A",1.38,0.04,0.33
+Choose the word that has a similar meaning to CALL,"{""A"": ""TALL"", ""B"": ""PHONE"", ""C"": ""FALL""}","B",1.38,0.04,0.33
+Choose the word that has a similar meaning to LOOK,"{""A"": ""SEE"", ""B"": ""BOOK"", ""C"": ""TOOK""}","A",1.36,-0.08,0.33
+Choose the word that has a similar meaning to BALL,"{""A"": ""CALL"", ""B"": ""BELL"", ""C"": ""SPHERE""}","C",1.36,-0.08,0.33
+Choose the word that has a similar meaning to TRUCK,"{""A"": ""LARGE VEHICLE"", ""B"": ""TRACK"", ""C"": ""TRUNK""}","A",1.36,-0.08,0.33
+Choose the word that has a similar meaning to HAT,"{""A"": ""HEADWEAR"", ""B"": ""BAT"", ""C"": ""MAT""}","A",1.34,-0.20,0.33
+Choose the word that has a similar meaning to CAT,"{""A"": ""BAT"", ""B"": ""FELINE"", ""C"": ""HAT""}","B",1.34,-0.20,0.33
+Choose the word that has a similar meaning to BAG,"{""A"": ""SACK"", ""B"": ""TAG"", ""C"": ""BUG""}","A",1.34,-0.20,0.33

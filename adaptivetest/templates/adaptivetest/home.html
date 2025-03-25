@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Welcome to Lexplore's Adaptive Test</h1>
+
+<h2>We will ask you a few questions about your background, and then a few questions to
+    assess your vocabulary level.  Are you ready to begin?
+</h2>
+
+<a href="{% url 'test' %}" class="button-link">Begin Placement</a>
+
+{% endblock %}

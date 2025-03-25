@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Welcome to Lexplore's Adaptive Test</h1>
+
+<h2>All done :)
+</h2>
+
+<p>Your stats: </p>
+<ul>
+    <li>Total questions: {{ total_questions }}</li>
+    <li>Number Correct: {{ correct_answers }}</li>
+    <li>Final ability (theta): {{ final_ability }}</li>
+</ul>
+
+<p>Later Skater!</p>
+
+{% endblock %}

@@ -25,6 +25,7 @@ def start_test(request):
     lexile = form.cleaned_data.get('lexile')
 
     newTestSession = TestSession(age = age, grade=grade, hours=hours, is_esl=language, lexile=lexile)
+    newTestSession.save()
 
     model = IRTModel()
     starting_question = model.get_next_question(newTestSession)

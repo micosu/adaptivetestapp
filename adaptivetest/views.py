@@ -88,12 +88,12 @@ def test_results(request, session_id):
     session = TestSession.objects.get(id=session_id)
     
     # Calculate results
-    total_questions = len(session.answered_questions)
-    correct_answers = sum(1 for _, correct in session.answered_questions if correct)
+    total_questions = len(session.get_administered()[0])
+    correct_answers = sum(1 for correct in session.get_administered()[1] if correct)
     
     return render(request, 'results.html', {
         'session': session,
         'total_questions': total_questions,
         'correct_answers': correct_answers,
-        'final_ability': session.current_theta
+        'final_ability': round(session.current_theta, 2)
     })

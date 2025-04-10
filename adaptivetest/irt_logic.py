@@ -5,7 +5,7 @@ from catsim.estimation import NumericalSearchEstimator
 from catsim.stopping import MaxItemStopper, MinErrorStopper
 from .models import TestSession, QuestionBank 
 
-items = False
+items = True
 class IRTModel:
     # Get all questions and format for catsim
     # CHECK
@@ -18,7 +18,7 @@ class IRTModel:
         self.selector = MaxInfoSelector()  # Selects best next question
         self.estimator = NumericalSearchEstimator()  # Updates theta
         # self.model = ThreePLModel()  # 3PL Model (can be changed to 2PL or 1PL)
-        self.stop_items = MaxItemStopper(10)
+        self.stop_items = MaxItemStopper(5)
         self.stop_error = MinErrorStopper(.3)
 
     def update_theta(self, test_session):

@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
+<div class = "container">
     <h2>Question {{ question_number }}</h2>
     <p>{{ question.text }}</p>
 
@@ -12,6 +13,7 @@
         {{ label }}: {{ choice_text }}
         </label><br>
     {% endfor %}
-    <button type="submit">Submit</button>
+    <button type="submit" class = "btn">Submit</button>
     </form>
+</div>
 {% endblock %}

@@ -1,17 +1,18 @@
 # Adaptive Testing Webapp
 
-## Setup Instructions
+# Setup Instructions
 
 1. Clone the repo: 
+
 git clone https://github.com/micosu/adaptivetestapp.git 
 
 cd adaptivetestapp
 
 2. Create and activate a virtual environment:
-# On Mac
+## On Mac
 python -m venv venv source venv/bin/activate 
 
-# On Windows: 
+## On Windows: 
 python -m venv venv source venv\Scripts\activate
 
 3. Install dependencies:

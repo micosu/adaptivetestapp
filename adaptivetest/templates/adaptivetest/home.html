@@ -2,12 +2,15 @@
 
 {% block content %}
 
-<h1>Welcome to Lexplore's Adaptive Test</h1>
-
-<h2>We will ask you a few questions about your background, and then a few questions to
-    assess your vocabulary level.  Are you ready to begin?
-</h2>
-
-<a href="{% url 'test' %}" class="button-link">Begin Placement</a>
+<div class="container">
+    <h1 data-text="Welcome to Lexplore's Adaptive Test">Welcome to Lexplore's Adaptive Test</h1>
+    
+    <div id="intro_text">
+        We will ask you a few questions about your background, and then a few questions to
+        assess your vocabulary level. Are you ready to begin?
+    </div>
+    
+    <a href="{% url 'test' %}" class="btn">Let's Begin!</a>
+</div>
 
 {% endblock %}

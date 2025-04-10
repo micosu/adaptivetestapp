@@ -1,14 +1,17 @@
 {% extends "base.html" %}
 
-{% block title %} Test {% endblock %}
+{% block title %} Background {% endblock %}
 
 {% block content %}
+<div class = "container">
     <h2>Let's begin your adaptive test</h2>
     <p>{{ message }}</p>
+
 
     <form method="POST" action = "{% url 'test' %}">
         {% csrf_token %}
         {{ form }}
         <button type="submit" id = 'id_submit_button'>Submit</button>
     </form>
+</div>
 {% endblock %}

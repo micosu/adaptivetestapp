@@ -25,6 +25,6 @@ def filter_by_lexile(input_file, output_file):
 
 # Example usage
 input_file = "allwords.csv"  # Replace with your file path
-output_file = "only_lexile.csv"  # Replace with desired output path
+output_file = "only_lexile_all_columns.csv"  # Replace with desired output path
 
 filter_by_lexile(input_file, output_file)

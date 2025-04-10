@@ -4,12 +4,15 @@
 	<meta charset="utf-8">
 	{% load static %}
 	<link rel="stylesheet" href=" {% static 'adaptivetest/css/adaptivetest.css' %}">
-	<title>{% block title %}Default Page{% endblock %}</title>
-
+    <link rel="shortcut icon" href="{% static 'adaptivetest/images/wordtag.webp' %}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lexplore's Adaptive Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;700;800&display=swap" rel="stylesheet">
+	<title>{% block title %}Adaptive Test{% endblock %}</title>
 </head>
 <body>
-	<div id="id_header_div">
-		<header class = 'banner'>
+	
+	<!-- <header class = 'banner'>
 			
 			<h1 id = "id_site_name">Lexplore</h1>
 
@@ -21,13 +24,12 @@
 				</nav>
 			</div>
 
-		</header>
-	</div>
-	<hr/>
-	<div id = "content">
-		{% block content %}
-		<h2> Welcome to Lexplore's Adaptive Test</h2>
-		{% endblock %}
-	</div>
+	</header> -->
+	<!-- <hr/> -->
+	
+    {% block content %}
+    <h2> Welcome to Lexplore's Adaptive Test</h2>
+    {% endblock %}
+	
 </body>
 </html>

@@ -6,7 +6,8 @@ from .models import TestSession
 class TestSessionForm(forms.ModelForm):
     class Meta: 
         model = TestSession
-        fields = ('lexile', 'age', 'grade', 'hours', 'language')
+        fields = ('age', 'grade', 'hours', 'language')
+        # fields = ('lexile', 'age', 'grade', 'hours', 'language')
         widgets = {
             'bio': forms.Textarea(attrs= {'id': 'id_bio_input_text', 'rows': 3}),
             'picture': forms.FileInput(attrs={'id': 'id_profile_picture'})
@@ -35,18 +36,18 @@ class TestSessionForm(forms.ModelForm):
         widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]),
         required=True
     )
-    lexile = forms.IntegerField(label="What is your current lexile score (optional)", required=False)
+    # lexile = forms.IntegerField(label="What is your current lexile score (optional)", required=False)
     
 
-    def clean_lexile(self):
-        cleaned_data = super().clean()
-        lexile = cleaned_data.get('lexile')
-        if lexile is None:
-            return lexile
+    # def clean_lexile(self):
+    #     cleaned_data = super().clean()
+    #     lexile = cleaned_data.get('lexile')
+    #     if lexile is None:
+    #         return lexile
 
-        if lexile < 0 or lexile > 2000:
-            raise forms.ValidationError('Lexile score should be in the range 0 - 2000')
-        return lexile
+    #     if lexile < 0 or lexile > 2000:
+    #         raise forms.ValidationError('Lexile score should be in the range 0 - 2000')
+    #     return lexile
     
     def clean_hours(self):
         cleaned_data = super().clean()

@@ -2,7 +2,7 @@ import csv
 import json
 from adaptivetest.models import QuestionBank
 
-with open('question_bank.csv', newline='', encoding='utf-8') as csvfile:
+with open('improved_question_bank.csv', newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         try:

@@ -18,61 +18,86 @@
 
 /* Global styles */
 
-header {
-    /* background-color: white; */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    padding: 15px 0;
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    z-index: 100;
-}
-header:after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(to right, #ff7b00, #ff0080, #00e1ff);
-  }
-
 body {
-    font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
-    background: linear-gradient(135deg, #4a90e2, #8e44ad);
-    margin: 0;
-    padding: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    color: #333;
+  font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
+  background: linear-gradient(135deg, #4a90e2, #8e44ad);
+  margin: 0;
+  padding: 0;
+  color: #333;
+  /* Removed flex display that was centering everything */
+  min-height: 100vh;
 }
-  
+
+/* Page wrapper to organize layout */
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Banner/header styles */
+.banner {
+  background-color: white;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 8px 0; /* Reduced padding to make header smaller */
+  position: relative; /* Not fixed anymore */
+  width: 100%;
+  z-index: 100;
+}
+
+.banner h1,
+.banner p,
+.banner div {
+    margin: 8px 0; /* Reduce margins for all elements inside the banner */
+}
+
+header:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(to right, #ff7b00, #ff0080, #00e1ff);
+}
+
+/* Main content area */
+.main-content {
+  flex: 1;
+  display: flex;
+  justify-content: center; /* Centers horizontally */
+  align-items: center; /* Centers vertically */
+  padding: 20px;
+  /* margin-top: 20px; Add space below header */
+  width: 100%; /* Ensure it takes full width */
+}
+
+/* Container stays mostly the same */
 .container {
-    background-color: white;
-    border-radius: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-    padding: 40px;
-    width: 60%;
-    max-width: 800px;
-    text-align: center;
-    position: relative;
-    overflow: hidden;
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  padding: 40px;
+  width: 60%;
+  max-width: 800px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  margin: 0 auto; /* Ensures horizontal centering */
+  margin-top: 20px; /* Increased spacing below header */
 }
-  
-  /* Add a colorful accent to the top of the container */
+
+/* Rest of your CSS remains the same */
 .container:before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 10px;
-    background: linear-gradient(to right, #ff7b00, #ff0080, #00e1ff);
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 10px;
+  background: linear-gradient(to right, #ff7b00, #ff0080, #00e1ff);
 }
-  
+
 h1 {
     font-size: 3rem;
     margin-bottom: 30px;

@@ -3,13 +3,22 @@ from catsim.selection import MaxInfoSelector
 from catsim.estimation import NumericalSearchEstimator
 # from catsim.irt import ThreePLModel
 from catsim.stopping import MaxItemStopper, MinErrorStopper
-from .models import TestSession, QuestionBank 
+from .models import QuestionBank 
+import os
+import django
 
 items = True
 class IRTModel:
     # Get all questions and format for catsim
     # CHECK
-    all_questions = list(QuestionBank.objects.all().values("id", "discrimination", "difficulty", "guessing"))
+    if os.environ.get('DJANGO_SETTINGS_MODULE') and django.apps.apps.ready:
+        try:
+            from adaptivetest.models import QuestionBank
+            all_questions = list(QuestionBank.objects.all().values("id", "discrimination", "difficulty", "guessing"))
+        except:
+            all_questions = []  # Fallback when table doesn't exist
+    else:
+        all_questions = []
     
     # Convert to NumPy array: [discrimination, difficulty, guessing]
     item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in all_questions])
@@ -18,7 +27,7 @@ class IRTModel:
         self.selector = MaxInfoSelector()  # Selects best next question
         self.estimator = NumericalSearchEstimator()  # Updates theta
         # self.model = ThreePLModel()  # 3PL Model (can be changed to 2PL or 1PL)
-        self.stop_items = MaxItemStopper(5)
+        self.stop_items = MaxItemStopper(10)
         self.stop_error = MinErrorStopper(.3)
 
     def update_theta(self, test_session):

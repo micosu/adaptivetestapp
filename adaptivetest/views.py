@@ -89,11 +89,14 @@ def test_results(request, session_id):
     
     # Calculate results
     total_questions = len(session.get_administered()[0])
+    for_catboost = [f"Question {ind}: Correct" if correct else f"Question {ind}: Incorrect" for ind, correct in zip(session.get_administered()[0], session.get_administered()[1])]
     correct_answers = sum(1 for correct in session.get_administered()[1] if correct)
     
     return render(request, 'results.html', {
         'session': session,
         'total_questions': total_questions,
-        'correct_answers': correct_answers,
-        'final_ability': round(session.current_theta, 2)
+        # 'correct_answers': correct_answers,
+        # 'approximate_lexile': round(session.current_theta * 350 + 700, 2),
+        # 'catboost': session.get_administered(),
+        'catboost': for_catboost[::-1]
     })

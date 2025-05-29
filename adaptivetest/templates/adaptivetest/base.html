@@ -11,25 +11,26 @@
 	<title>{% block title %}Adaptive Test{% endblock %}</title>
 </head>
 <body>
-	
-	<!-- <header class = 'banner'>
-			
-			<h1 id = "id_site_name">Lexplore</h1>
+	<div class="page-wrapper">
+		<header class = 'banner'>
+				
+				<h1 id = "id_site_name">Lexplore</h1>
 
-			<div class = "links">
-				<nav>
-					{% block links %}
-					<a href="{% url 'home' %}">Home</a>
-					{% endblock %}
-				</nav>
-			</div>
+				<div class = "links">
+					<nav>
+						{% block links %}
+						<a href="{% url 'home' %}">Home</a>
+						{% endblock %}
+					</nav>
+				</div>
 
-	</header> -->
-	<!-- <hr/> -->
-	
-    {% block content %}
-    <h2> Welcome to Lexplore's Adaptive Test</h2>
-    {% endblock %}
-	
+		</header>
+		
+		<div class="main-content">
+			{% block content %}
+			<h2> Welcome to Lexplore's Adaptive Test</h2>
+			{% endblock %}
+		</div>
+	</div>
 </body>
 </html>

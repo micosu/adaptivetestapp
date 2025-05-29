@@ -1,3 +1,5 @@
+# Copy this code into a python3 manage.py shell when you're ready
+
 import csv
 import json
 from adaptivetest.models import QuestionBank

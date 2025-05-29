@@ -3,15 +3,14 @@
 {% block content %}
 
 <div class ="container">
-<!-- <h1>All done :) </h1> -->
-<h1>Your stats: </h1>
+
+<h1> Stats (Internal for Catboost): </h1>
 <ul>
     <li>Total questions: {{ total_questions }}</li>
-    <li>Number Correct: {{ correct_answers }}</li>
-    <li>Final ability (theta): {{ final_ability }}</li>
+    <!-- <li>Number Correct: {{ correct_answers }}</li> -->
+    <!-- <li>Final ability (lexile): {{ approximate_lexile }}</li> -->
+    <li>Question IDs with correctness: {{ catboost }}</li>
 </ul>
-
-<h3>Later Skater!</h3>
 
 </div>
 

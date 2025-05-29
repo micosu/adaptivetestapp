@@ -1,6 +1,6 @@
 # Adaptive Testing Webapp
 
-# Setup Instructions
+## Setup Instructions
 
 ## 1. Clone the repo:
 
@@ -10,13 +10,17 @@ cd adaptivetestapp
 
 ## 2. Create and activate a virtual environment:
 
-# On Mac
+### On Mac
 
-python -m venv venv source venv/bin/activate
+python -m venv venv 
 
-# On Windows:
+source venv/bin/activate
 
-python -m venv venv source venv\Scripts\activate
+### On Windows:
+
+python -m venv venv 
+
+source venv\Scripts\activate
 
 ## 3. Install dependencies:
 
@@ -30,4 +34,6 @@ python manage.py migrate
 
 python manage.py runserver
 
-## 6. Visit `http://127.0.0.1:8000` in your browser.
+## 6. Open in browser
+
+Visit `http://127.0.0.1:8000` in your browser.

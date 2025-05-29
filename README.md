@@ -2,6 +2,8 @@
 
 ## Setup Instructions
 
+This guide will walk you through how to set up and try out the adaptive testing app locally.  The following commands should be run in your terminal.
+
 ## 1. Clone the repo:
 
 git clone https://github.com/micosu/adaptivetestapp.git

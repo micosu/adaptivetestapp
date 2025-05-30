@@ -1,0 +1,41 @@
+text,choices,correct_answer,discrimination,difficulty,guessing
+Choose the word that has a similar meaning to LOUDLY,"{""A"": ""QUIETLY"", ""B"": ""SILENTLY"", ""C"": ""NOISILY""}",C,1.2282639840057459,0.12193038029223234,0.28157932368762517
+Choose the word that has a similar meaning to SHOULDER,"{""A"": ""UPPER ARM"", ""B"": ""CHEST"", ""C"": ""NECK""}",A,1.059215253153877,-0.9156028292639609,0.29961589197098465
+Choose the word that has a similar meaning to DIE,"{""A"": ""END"", ""B"": ""LIVE"", ""C"": ""BREATHE""}",A,1.0318854111387008,-0.9571256714947503,0.31080106818412706
+Choose the word that has a similar meaning to TRUST,"{""A"": ""DOUBT"", ""B"": ""BELIEVE"", ""C"": ""IGNORE""}",B,1.0976360390142879,-0.3553890215882572,0.3052306314704327
+Choose the word that has a similar meaning to WINNING,"{""A"": ""COMPETING"", ""B"": ""LOSING"", ""C"": ""VICTORIOUS""}",C,1.3085191303179187,-0.9203426138647453,0.2932033620654839
+Choose the word that has a similar meaning to POWER,"{""A"": ""STRENGTH"", ""B"": ""WEAKNESS"", ""C"": ""FORCE""}",A,1.0528723705184357,-0.14292988806570198,0.3147642608468464
+Choose the word that has a similar meaning to CHALLENGE,"{""A"": ""RUN"", ""B"": ""IGNORE"", ""C"": ""CONTEST""}",C,1.22685495445006,-0.0652644100725514,0.3095008691784579
+Choose the word that has a similar meaning to DISPLAY,"{""A"": ""EXHIBITION"", ""B"": ""REMOVAL"", ""C"": ""HIDING""}",A,1.1764079638900178,-0.010265977009582419,0.3079777087785567
+Choose the word that has a similar meaning to NERVOUS,"{""A"": ""ANXIOUS"", ""B"": ""ANXIOUS"", ""C"": ""CONFIDENT""}",B,1.186249679180949,-0.18620068137903792,0.29066195535980716
+Choose the word that has a similar meaning to CRYSTAL,"{""A"": ""DIRT"", ""B"": ""ROCK"", ""C"": ""GEM""}",C,1.25170201557829,0.07524327420531704,0.29384869912459444
+Choose the word that has a similar meaning to ATMOSPHERE,"{""A"": ""SPACE"", ""B"": ""PLANET"", ""C"": ""AIR""}",C,1.0693488109209697,0.6406755893015376,0.2967213652804369
+Choose the word that has a similar meaning to RECEIVE,"{""A"": ""TAKE"", ""B"": ""SEND"", ""C"": ""OFFER""}",A,1.0522118434084187,0.08952889016463983,0.3153754529196529
+Choose the word that has a similar meaning to ALGEBRA,"{""A"": ""ART"", ""B"": ""SCIENCE"", ""C"": ""MATH""}",A,1.2036818414764137,1.1575853179190279,0.28084985199441437
+Choose the word that has a similar meaning to ASSISTANT,"{""A"": ""ASSIGNMENT"", ""B"": ""LEADER"", ""C"": ""HELPER""}",C,1.1046712413309585,0.30391724133243514,0.2998725045779076
+Choose the word that has a similar meaning to IMPROVE,"{""A"": ""BE BETTER"", ""B"": ""IMPORT"", ""C"": ""IMPACT""}",A,1.2212945756119993,-0.06187900371025416,0.3096690110779038
+Choose the word that has a similar meaning to DIAMOND,"{""A"": ""GEM"", ""B"": ""ROCK"", ""C"": ""GLASS""}",A,1.197611588995671,-0.25011535399085916,0.29554587546156486
+Choose the word that has a similar meaning to GUILTY,"{""A"": ""LOUD"", ""B"": ""HAPPY"", ""C"": ""ASHAMED""}",C,1.1966531937521054,0.1857143007156964,0.29672815748163334
+Choose the word that has a similar meaning to STALK,"{""A"": ""CHASE"", ""B"": ""PLANT"", ""C"": ""WALK""}",A,1.2534625804658122,0.28762188393941845,0.2854299181093697
+Choose the word that has a similar meaning to DOCUMENT,"{""A"": ""PICTURE"", ""B"": ""PAPER"", ""C"": ""FOLDER""}",B,1.1035183461423816,0.6343333001077234,0.30674094729782475
+Choose the word that has a similar meaning to TOUGH,"{""A"": ""STRONG"", ""B"": ""ANGRY"", ""C"": ""HARD""}",C,1.2553588559485325,-0.5457043348686973,0.2998936881384284
+Choose the word that has a similar meaning to DESCRIPTION,"{""A"": ""INSTRUCTION"", ""B"": ""OPINION"", ""C"": ""EXPLANATION""}",C,1.0574259241438222,0.37408329867887297,0.30082174880086
+Choose the word that has a similar meaning to SWEEP,"{""A"": ""MOP"", ""B"": ""CLEAN"", ""C"": ""SWEEP""}",B,1.151243709910624,-0.8490956656419812,0.2927966559746258
+Choose the word that has a similar meaning to TRANSFER,"{""A"": ""MOVE"", ""B"": ""CARRY"", ""C"": ""SEND""}",A,1.2479308749729743,0.7617164149944688,0.3061035683722481
+Choose the word that has a similar meaning to ECOSYSTEM,"{""A"": ""ANIMALS"", ""B"": ""ENVIRONMENT"", ""C"": ""FOREST""}",B,1.080607684277037,1.0179248454161929,0.290318007934496
+Choose the word that has a similar meaning to AVOID,"{""A"": ""DODGE"", ""B"": ""ESCAPE"", ""C"": ""ADOPT""}",A,1.1508896168952418,0.26085967254837295,0.3070963430382396
+Choose the word that has a similar meaning to INTERRUPT,"{""A"": ""DISTURB"", ""B"": ""ASK"", ""C"": ""SIT""}",A,1.0287902232847927,-0.06936196555310442,0.28932940767247034
+Choose the word that has a similar meaning to IMMEDIATELY,"{""A"": ""LATER"", ""B"": ""RIGHT AWAY"", ""C"": ""ALWAYS""}",B,0.7051609927922395,-0.19428661022606408,0.30527983427883865
+Choose the word that has a similar meaning to PURCHASE,"{""A"": ""PURSUE"", ""B"": ""BUY"", ""C"": ""PAUSE""}",A,1.2030721713864416,0.1607655047958762,0.3093343005550736
+Choose the word that has a similar meaning to SAMPLE,"{""A"": ""SUPPER"", ""B"": ""NAP"", ""C"": ""EXAMPLE""}",C,1.2873563922907536,-1.3964873224677512,0.3017344613744838
+Choose the word that has a similar meaning to CHEMIST,"{""A"": ""CHERRY"", ""B"": ""SCIENTIST"", ""C"": ""FARMER""}",B,1.3080904254969734,-0.29138717030703515,0.2810513370705062
+Choose the word that has a similar meaning to POTENTIAL,"{""A"": ""CERTAIN"", ""B"": ""POSSIBLE"", ""C"": ""UNLIKELY""}",B,1.1874534144422826,0.9618271913460438,0.30734618265745334
+Choose the word that has a similar meaning to FIRM,"{""A"": ""HARD"", ""B"": ""SOFT"", ""C"": ""STURDY""}",C,1.17251326381518,1.0107663635514077,0.30585117078039087
+Choose the word that has a similar meaning to INVEST,"{""A"": ""TAKE"", ""B"": ""SPEND"", ""C"": ""DEVOTE""}",C,1.2707141872469687,1.3470908222274551,0.30219052823931364
+Choose the word that has a similar meaning to BOYCOTT,"{""A"": ""IGNORE"", ""B"": ""PROTEST"", ""C"": ""SUPPORT""}",B,1.3437874526646831,1.4734574089321582,0.28379473898837404
+Choose the word that has a similar meaning to IMPORT,"{""A"": ""SHIPMENT"", ""B"": ""EXPORT"", ""C"": ""CONSTRUCTION""}",A,1.2843710504549983,0.8524888160294657,0.29898640438633645
+Choose the word that has a similar meaning to CHARACTERISTIC,"{""A"": ""WHOLE"", ""B"": ""ATTRIBUTE"", ""C"": ""PATTERN""}",B,1.055711129993735,1.2219926648762347,0.3063451757267469
+Choose the word that has a similar meaning to ECONOMIC,"{""A"": ""RISKY"", ""B"": ""EDUCATIONAL"", ""C"": ""COMMERCIAL""}",C,0.8212630192460281,0.8849090542273301,0.2974675567846311
+Choose the word that has a similar meaning to SEIZE,"{""A"": ""RELEASE"", ""B"": ""CATCH"", ""C"": ""DEMAND""}",B,1.1192171184761919,0.8250837529248078,0.2952934868545173
+Choose the word that has a similar meaning to FLEET,"{""A"": ""HURRIED"", ""B"": ""BUSY"", ""C"": ""SPEEDY""}",C,1.2117671632312805,0.971604917102878,0.2961563919905157
+Choose the word that has a similar meaning to OCCUPATION,"{""A"": ""ACTIVITY"", ""B"": ""ROLE"", ""C"": ""RECREATION""}",A,0.963612027526399,1.0267758632274964,0.29203281029494765

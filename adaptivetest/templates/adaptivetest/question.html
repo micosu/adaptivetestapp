@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class = "container">
-    <h2>Question {{ question_number }}</h2>
-    <p>{{ question.text }}</p>
+    <h2>{{ question.text }}</h2>
+    <!-- <p>{{ question.text }}</p> -->
 
     <form method="POST" action = "{% url 'question' session_id %}">
     {% csrf_token %}

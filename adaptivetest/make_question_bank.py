@@ -1,4 +1,4 @@
-# Copy this code into a python3 manage.py shell when you're ready
+# Copy this code into a python manage.py shell when you're ready
 
 import csv
 import json

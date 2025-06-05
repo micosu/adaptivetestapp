@@ -3,7 +3,11 @@
 <head>
 	<meta charset="utf-8">
 	{% load static %}
-	<link rel="stylesheet" href=" {% static 'adaptivetest/css/adaptivetest.css' %}">
+	
+	{% block styles %}
+	<link rel="stylesheet" href="{% static 'adaptivetest/css/adaptivetest.css' %}">
+	{% endblock %}
+	
     <link rel="shortcut icon" href="{% static 'adaptivetest/images/wordtag.webp' %}" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lexplore's Adaptive Test</title>
@@ -12,25 +16,23 @@
 </head>
 <body>
 	<div class="page-wrapper">
-		<header class = 'banner'>
-				
-				<h1 id = "id_site_name">Lexplore</h1>
-
-				<div class = "links">
-					<nav>
-						{% block links %}
-						<a href="{% url 'home' %}">Home</a>
-						{% endblock %}
-					</nav>
-				</div>
-
+		<header class='banner'>
+			<h1 id="id_site_name">Lexplore</h1>
+			<div class="links">
+				<nav>
+					{% block links %}
+					<a href="{% url 'home' %}">Home</a>
+					{% endblock %}
+				</nav>
+			</div>
 		</header>
 		
 		<div class="main-content">
 			{% block content %}
-			<h2> Welcome to Lexplore's Adaptive Test</h2>
+			<h2>Welcome to Lexplore's Adaptive Test</h2>
 			{% endblock %}
 		</div>
 	</div>
+{% block extra_scripts %}{% endblock %}
 </body>
 </html>

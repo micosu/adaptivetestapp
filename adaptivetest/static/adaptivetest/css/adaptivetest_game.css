@@ -1,46 +1,29 @@
-.button-link {
-    padding: 8px 16px;
-    text-decoration: none;
-    border-radius: 4px;
-    border: none;
-    background-color: #d6faff;
-    color: black;
-    font-weight: bold;
-    font-size: large;
-    text-align: center;
-    flex: 1; /* Makes buttons grow equally */
-    max-width: 150px;
-}
-
-.button-link:hover {
-    background-color: #62edff;
-}
-
-/* Global styles */
-
+/* ----------------------------
+   Global & Font Styling
+----------------------------- */
 body {
   font-family: 'Nunito', 'Arial Rounded MT Bold', sans-serif;
-  background: linear-gradient(135deg, #4a90e2, #8e44ad);
+  background-color: black;
   margin: 0;
   padding: 0;
   color: #333;
-  /* Removed flex display that was centering everything */
   min-height: 100vh;
 }
 
-/* Page wrapper to organize layout */
 .page-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
 }
 
-/* Banner/header styles */
+/* ----------------------------
+   Banner/Header (original)
+----------------------------- */
 .banner {
   background-color: white;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-  padding: 8px 0; /* Reduced padding to make header smaller */
-  position: relative; /* Not fixed anymore */
+  padding: 8px 0;
+  position: relative;
   width: 100%;
   z-index: 100;
 }
@@ -48,7 +31,14 @@ body {
 .banner h1,
 .banner p,
 .banner div {
-    margin: 8px 0; /* Reduce margins for all elements inside the banner */
+  margin: 8px 0;
+}
+
+#id_site_name {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
 }
 
 header:after {
@@ -61,299 +51,178 @@ header:after {
   background: linear-gradient(to right, #ff7b00, #ff0080, #00e1ff);
 }
 
-/* Main content area */
+/* ----------------------------
+   Main Content Area
+----------------------------- */
 .main-content {
   flex: 1;
   display: flex;
-  justify-content: center; /* Centers horizontally */
-  align-items: center; /* Centers vertically */
-  padding: 20px;
-  /* margin-top: 20px; Add space below header */
-  width: 100%; /* Ensure it takes full width */
+  justify-content: center;
+  align-items: center;
+  padding: 40px 0;
 }
 
-/* Container stays mostly the same */
+/* ----------------------------
+   Game Container w/ Track
+----------------------------- */
 .container {
-  background-color: white;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-  padding: 40px;
-  width: 60%;
-  max-width: 800px;
-  text-align: center;
+  width: 812px;
+  height: 375px;
+  background: url('/static/adaptivetest/images/track-background.png') no-repeat center/cover;
   position: relative;
+  border-radius: 20px;
   overflow: hidden;
-  margin: 0 auto; /* Ensures horizontal centering */
-  margin-top: 20px; /* Increased spacing below header */
+  text-align: center;
+  padding-top: 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  perspective: 1000px;
 }
 
-/* Rest of your CSS remains the same */
-.container:before {
-  content: '';
+/* ----------------------------
+   Prompt Word Styling
+----------------------------- */
+.container h2 {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 10px;
-  background: linear-gradient(to right, #ff7b00, #ff0080, #00e1ff);
+  top: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  color: black;
+  font-size: 28px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+  z-index: 2;
 }
 
-h1 {
-    font-size: 3rem;
-    margin-bottom: 30px;
-    color: #333;
-    text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(to right, #ff7b00, #ff0080);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    position: relative;
-    display: inline-block;
-}
-  
-  /* Add a cartoon-style outline to the heading */
-h1:after {
-    content: attr(data-text);
-    position: absolute;
-    left: 0;
-    top: 0;
-    z-index: -1;
-    -webkit-text-fill-color: transparent;
-    -webkit-text-stroke: 8px white;
-}
-  
-#intro_text {
-    font-size: 1.2rem;
-    line-height: 1.6;
-    margin-bottom: 40px;
-    color: #555;
-}
-  
-  /* Style for buttons */
-.btn {
-    background-color: #ffcc00;
-    color: #333;
-    border: none;
-    padding: 12px 30px;
-    font-size: 1.2rem;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-  
-  .btn:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    background-color: #ffd700;
+/* ----------------------------
+   Answer Choices
+----------------------------- */
+.choice-label {
+  position: absolute;
+  top: 240px;
+  background: white;
+  color: black;
+  font-family: 'Impact', sans-serif;
+  font-size: 22px;
+  padding: 10px 20px;
+  border-radius: 12px;
+  text-shadow:
+    -2px -2px 0 white,
+     2px -2px 0 white,
+    -2px  2px 0 white,
+     2px  2px 0 white;
+  cursor: pointer;
+  z-index: 2;
+  transform: translateX(-50%) scale(0.5);
+  opacity: 0;
+  animation: zoom-slide-in 0.8s ease-out forwards;
 }
 
-.btn:active {
-    transform: translateY(0);
-}
-  
-  /* Add a cool shine effect to the button */
-.btn:before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: rotate(45deg);
-    transition: all 0.3s ease;
-    z-index: 1;
-    pointer-events: none;
-}
-  
-.btn:hover:before {
-    left: 120%;
-    top: 120%;
+.choice-label.left {
+  left: 30%;
+  animation-delay: 0s;
 }
 
-form {
-    background-color: white;
-    border-radius: 15px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    padding: 25px;
-    width: 100%;
-    max-width: 600px;
-    position: relative;
-    overflow: hidden;
-    margin: auto;
-    box-sizing: border-box;
+.choice-label.middle {
+  left: 50%;
+  animation-delay: 0s;
 }
-  
-  /* Colorful top border for form */
 
-  
-  h2 {
-    font-size: 2.2rem;
-    margin-bottom: 15px;
-    color: #333;
-    text-align: center;
-    text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.1);
-    background: linear-gradient(to right, #ff7b00, #ff0080);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+.choice-label.right {
+  left: 70%;
+  animation-delay: 0s;
+}
+
+.choice-label:hover {
+  transform: translateX(-50%) scale(1.1);
+}
+
+/* Hide the default round radio buttons */
+input[type="radio"] {
+  display: none;
+}
+
+/* ----------------------------
+   Slide-In Animation
+----------------------------- */
+@keyframes zoom-slide-in {
+  0% {
+    transform: translate(-50%, -80px) scale(0.2);
+    opacity: 0;
+    filter: blur(6px);
   }
-  
-  p {
-    font-size: 1.1rem;
-    line-height: 1.5;
-    margin-bottom: 30px;
-    color: #555;
-    text-align: center;
+  70% {
+    filter: blur(2px);
   }
-  
-  /* Form field containers */
-  form div {
-    margin-bottom: 12px;
+  100% {
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
+    filter: blur(0);
   }
-  
-  /* Labels */
-  label {
-    display: block;
-    margin-bottom: 8px;
-    font-weight: 600;
-    color: #444;
-  }
-  
-  /* Form inputs */
-  input[type="number"],
-  select {
-    width: 100%;
-    padding: 12px 15px;
-    border: 2px solid #e0e0e0;
-    border-radius: 10px;
-    font-size: 16px;
-    transition: border 0.3s ease;
-    box-sizing: border-box;
-    font-family: 'Nunito', sans-serif;
-  }
-  
-  input[type="number"]:focus,
-  select:focus {
-    border-color: #4a90e2;
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2);
-  }
-  
-  /* Radio buttons styling */
-  fieldset {
-    border: none;
-    padding: 0;
-    margin: 0 0 25px 0;
-  }
-  
-  legend {
-    font-weight: 600;
-    margin-bottom: 10px;
-    color: #444;
-  }
-  
-  #id_language {
-    display: flex;
-    gap: 30px;
-  }
-  
-  #id_language div {
-    margin-bottom: 0;
-  }
-  
-  #id_language label {
-    display: flex;
-    align-items: center;
-    cursor: pointer;
-    font-weight: normal;
-  }
-  
-  input[type="radio"] {
-    margin-right: 8px;
-    cursor: pointer;
-    accent-color: #4a90e2;
-    width: 18px;
-    height: 18px;
-  }
-  
-  /* Submit button */
-  #id_submit_button {
-    background-color: #ffcc00;
-    color: #333;
-    border: none;
-    padding: 14px 30px;
-    font-size: 1.1rem;
-    border-radius: 50px;
-    cursor: pointer;
-    font-weight: bold;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s ease;
-    display: block;
-    margin: 40px auto 0;
-    position: relative;
-    overflow: hidden;
-  }
-  
-  #id_submit_button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    background-color: #ffd700;
-  }
-  
-  #id_submit_button:active {
-    transform: translateY(0);
-  }
-  
-  /* Shine effect on submit button */
-  #id_submit_button:before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: rgba(255, 255, 255, 0.2);
-    transform: rotate(45deg);
-    transition: all 0.3s ease;
-    z-index: 1;
-    pointer-events: none;
-  }
-  
-  #id_submit_button:hover:before {
-    left: 120%;
-    top: 120%;
-  }
-  
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    form {
-      width: 90%;
-      padding: 30px;
-    }
-    
-    h2 {
-      font-size: 1.8rem;
-    }
-    
-    #id_language {
-      flex-direction: column;
-      gap: 10px;
-    }
+}
+
+/* ----------------------------
+   Roxy Character Animation
+----------------------------- */
+#roxy-character {
+  width: 200px;
+  position: absolute;
+  bottom: -80px;
+  left: 47%; /* visually centered on middle lane */
+  transform: translateX(-50%);
+  transition: left 0.4s ease;
+  animation: roxy-bounce 1s infinite ease-in-out;
+  z-index: 2;
+}
+
+
+
+@keyframes roxy-bounce {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+
+/* ----------------------------
+   Responsive Tweaks
+----------------------------- */
+@media (max-width: 768px) {
+  .container {
+    width: 95%;
+    height: auto;
+    padding: 20px 10px;
   }
 
-  ul {
-    text-align: left; /* Aligns the text to the left */
-    padding-left: 25px; /* Gives some space for the bullets */
-    list-style-position: outside; /* Ensures bullets are outside the text block */
-    width: 90%; /* Controls the width of the list */
-    margin: 0 auto; /* Centers the list container itself */
-    max-width: 600px; /* Maximum width for the list */
+  .container h2 {
+    font-size: 1.4rem;
+    top: 20px;
   }
-  
-  li {
-    margin-bottom: 8px; /* Space between list items */
-    line-height: 1.4; /* Comfortable line height */
+
+  .choice-label {
+    font-size: 1rem;
+    padding: 8px 12px;
   }
+
+  .choice-label.left {
+    left: 20%;
+  }
+
+  .choice-label.middle {
+    left: 50%;
+  }
+
+  .choice-label.right {
+    left: 80%;
+  }
+}
+
+.finishline {
+  position: absolute;
+  bottom: 10px;
+  right: 20px;
+  height: 100px;
+  z-index: 1;
+}

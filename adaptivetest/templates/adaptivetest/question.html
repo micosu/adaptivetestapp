@@ -1,19 +1,123 @@
 {% extends "base.html" %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'adaptivetest/css/adaptivetest_game.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class = "container">
-    <h2>{{ question.text }}</h2>
-    <!-- <p>{{ question.text }}</p> -->
+<div class="container">
+    <div id="countdown-timer"></div>
+  {% if question.is_last %}
+  <img src="{% static 'adaptivetest/images/finishline.png' %}" class="finishline" alt="Finish Line">
+{% endif %}   
 
-    <form method="POST" action = "{% url 'question' session_id %}">
-    {% csrf_token %}
-    {% for label, choice_text in question.choices.items %}
-        <label>
-        <input type="radio" name="answer" value="{{ label }}" required>
-        {{ label }}: {{ choice_text }}
-        </label><br>
-    {% endfor %}
-    <button type="submit" class = "btn">Submit</button>
+    <img src="{% static 'adaptivetest/images/roxy.png' %}" class="roxy" id="roxy-character">
+
+    <h2>{{ question.text }}</h2>
+
+    <form id="question-form" method="POST" action="{% url 'question' session_id %}">
+        {% csrf_token %}
+        {% for label, choice_text in question.choices.items %}
+            <label 
+              class="choice-label {% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}"
+              data-position="{% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}">
+                <input type="radio" name="answer" value="{{ label }}" required>
+                {{ choice_text }}
+            </label>
+        {% endfor %}
     </form>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+  let submitted = false;
+  const roxy = document.getElementById('roxy-character');
+
+  // 🟡 Default to middle lane if this is the first question
+  let savedTrack = sessionStorage.getItem("roxyTrack");
+  if (!savedTrack) {
+    savedTrack = "middle";
+    sessionStorage.setItem("roxyTrack", savedTrack);
+  }
+
+  // 🟢 Apply saved position
+  if (savedTrack === "left") {
+    roxy.style.left = "8%";
+  } else if (savedTrack === "middle") {
+    roxy.style.left = "40%";
+  } else if (savedTrack === "right") {
+    roxy.style.left = "72%";
+  }
+
+  // 🔵 When the user selects an answer
+  document.querySelectorAll('input[type="radio"][name="answer"]').forEach((radio, index) => {
+    radio.addEventListener('change', function () {
+      if (submitted) return;
+      submitted = true;
+
+      let selectedTrack;
+      if (index === 0) {
+        roxy.style.left = "8%";
+        selectedTrack = "left";
+      } else if (index === 1) {
+        roxy.style.left = "40%";
+        selectedTrack = "middle";
+      } else {
+        roxy.style.left = "72%";
+        selectedTrack = "right";
+      }
+
+      sessionStorage.setItem("roxyTrack", selectedTrack);
+
+      setTimeout(() => {
+        document.getElementById('question-form').submit();
+      }, 400);
+    });
+  });
+
+  // 🕒 Countdown Timer (2 minutes total for whole test)
+  const TOTAL_TIME = 2 * 60 * 1000;
+  let startTime = sessionStorage.getItem('quizStartTime');
+  if (!startTime) {
+    startTime = Date.now();
+    sessionStorage.setItem('quizStartTime', startTime);
+  } else {
+    startTime = parseInt(startTime);
+  }
+
+  const timerDiv = document.getElementById('countdown-timer');
+  timerDiv.style.position = 'fixed';
+  timerDiv.style.top = '12px';
+  timerDiv.style.right = '24px';
+  timerDiv.style.background = 'white';
+  timerDiv.style.padding = '10px 18px';
+  timerDiv.style.borderRadius = '14px';
+  timerDiv.style.fontWeight = 'bold';
+  timerDiv.style.fontSize = '18px';
+  timerDiv.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
+  timerDiv.style.zIndex = '999';
+
+  function updateTimer() {
+    const now = Date.now();
+    const elapsed = now - startTime;
+    const remaining = TOTAL_TIME - elapsed;
+
+    if (remaining <= 0) {
+      sessionStorage.removeItem('quizStartTime');
+      timerDiv.innerText = '00:00';
+      window.location.href = "{% url 'results' session_id %}";
+    } else {
+      const minutes = String(Math.floor(remaining / 60000)).padStart(2, '0');
+      const seconds = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+      timerDiv.innerText = `${minutes}:${seconds}`;
+    }
+  }
+
+  updateTimer();
+  setInterval(updateTimer, 1000);
+</script>
+
+
 {% endblock %}

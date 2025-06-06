@@ -12,6 +12,8 @@ class QuestionBank(models.Model):
     text = models.TextField()
     choices = models.JSONField()  # stores options as a dict
     correct_answer = models.CharField(max_length=2)  # 'A', 'B', 'C', etc.
+    QUESTION_TYPES = (('syn', 'Synonym'), ('wic', 'Word In Context'))
+    question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
 
     # IRT parameters
     discrimination = models.FloatField(default=1.0)  # a parameter
@@ -107,7 +109,7 @@ class TestSession(models.Model):
         is_correct = []
         # subtract 1 from question id because lists 0 index
         for entry in self.answered_questions:
-            answered_ids.append(entry['question_id'] - 1)
+            answered_ids.append(entry['question_id'])
             is_correct.append(entry["is_correct"])
 
         # print("Answered IDs", answered_ids)

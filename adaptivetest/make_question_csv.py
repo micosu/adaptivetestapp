@@ -59,7 +59,7 @@ def compute_irt_params(word_attrs, min_log_freq, max_log_freq):
     # Calculate difficulty (b) with rebalanced weights
     # Age of acquisition: 40%, frequency: 40%, lexile: 20%
     # + .5 for WIC only
-    raw_b = 0.4 * age_centered + 0.4 * freq_factor + 0.2 * lexile_factor + .5
+    raw_b = 0.4 * age_centered + 0.4 * freq_factor + 0.2 * lexile_factor # + .5
     
     # Apply a very gentle sigmoid to ensure we have room at the top
     # This version only compresses values that are already near the extremes

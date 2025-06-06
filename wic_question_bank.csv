@@ -1,0 +1,22 @@
+text,choices,correct_answer,discrimination,difficulty,guessing
+We hung a picture on the ______ to brighten the room.,"{""A"": ""FLOOR"", ""B"": ""WALL"", ""C"": ""CEILING""}",B,1.051323253598475,-0.13102937794800606,0.3071359586382427
+Please ______ what changes when you add heat.,"{""A"": ""NOTE"", ""B"": ""SING"", ""C"": ""FORGET""}",A,1.0701227594836358,0.5999533146622431,0.3140267777478087
+Daily ______ helps you stay healthy and strong.,"{""A"": ""EATING"", ""B"": ""SLEEP"", ""C"": ""EXERCISE""}",C,1.0493489419447684,0.6114042855959575,0.30502700041100633
+"She tried to open the jar, but she was ______ to do it.","{""A"": ""ABLE"", ""B"": ""UNABLE"", ""C"": ""WILLING""}",B,1.0401153853509697,1.0507496599593937,0.29962024259389874
+"I forgot to lock the door, so it's my ______.","{""A"": ""BLAME"", ""B"": ""FAME"", ""C"": ""CLAIM""}",A,1.1644005408263456,0.7499019890864869,0.2983161204770389
+The teacher helped the ______ of the bullying incident.,"{""A"": ""SUSPECT"", ""B"": ""VICTIM"", ""C"": ""LEADER""}",B,1.183855401446808,1.4272507361997506,0.30417611537721967
+Please ______ your hand if you know the answer.,"{""A"": ""RAISE"", ""B"": ""WRITE"", ""C"": ""CLOSE""}",A,1.071372549339036,0.7831922620466226,0.30943390018427097
+I got to ______ the amazing moment at the game.,"{""A"": ""HEAR"", ""B"": ""WITNESS"", ""C"": ""IGNORE""}",B,1.1538886563100217,1.311484387472738,0.3014573531027327
+It was the firefighter's ______ to help during emergencies.,"{""A"": ""TRICK"", ""B"": ""PLAN"", ""C"": ""DUTY""}",C,1.0919516533686493,0.9391492351972133,0.30323881878166115
+The teacher will ______ the winner tomorrow.,"{""A"": ""COUNT"", ""B"": ""ANNOUNCE"", ""C"": ""GUESS""}",B,1.1503914489793463,1.1262631706838606,0.3085044606628953
+We need to ______ this problem before it gets worse.,"{""A"": ""RESOLVE"", ""B"": ""REACT"", ""C"": ""REFUSE""}",A,1.1547753272629069,1.7912851692645309,0.2999303526948281
+He made a special ______ to sit next to his friend.,"{""A"": ""QUESTION"", ""B"": ""REACT"", ""C"": ""REQUEST""}",C,1.16661935610199,1.303426167517289,0.3075084125002573
+You should learn the ______ of being on time.,"{""A"": ""IMPATIENCE"", ""B"": ""IMPRESSION"", ""C"": ""IMPORTANCE""}",C,1.0486572292166891,0.8607828907521571,0.3007972081984298
+They talked about an important ______ in class.,"{""A"": ""ISSUE"", ""B"": ""TOY"", ""C"": ""SONG""}",A,1.1783951896785059,0.5950346751535688,0.31638180897798324
+“Mammal” is a science ______ we learned today.,"{""A"": ""STUDENT"", ""B"": ""TERM"", ""C"": ""CLASS""}",B,1.1360692727915718,1.1962908652920685,0.31122019580580595
+The ship arrived at the ______ to load and unload goods.,"{""A"": ""PORT"", ""B"": ""FARM"", ""C"": ""CAMP""}",A,1.1913402556058368,1.4708669180230673,0.3037750776795616
+The sign will ______ where you need to turn.,"{""A"": ""INCLUDE"", ""B"": ""INDICATE"", ""C"": ""INSIST""}",B,1.049986351326839,1.5556649178062192,0.3045642121849751
+There were ______ correct answers on the quiz.,"{""A"": ""ONE"", ""B"": ""SINGLE"", ""C"": ""MULTIPLE""}",C,1.2046504919267425,1.1281779986830884,0.3055111197995852
+Each clue had a ______ to the final answer of the puzzle.,"{""A"": ""BREAK"", ""B"": ""TRICK"", ""C"": ""LINK""}",C,1.2348505412859354,1.5873969831758166,0.30994518074872646
+The teacher tried to ______ every student in the lesson.,"{""A"": ""ENGAGE"", ""B"": ""EXCHANGE"", ""C"": ""IGNORE""}",A,1.1310451247090565,1.7093856494746875,0.3042414294422251
+She had to ______ the invitation because she was sick.,"{""A"": ""DECIDE"", ""B"": ""DECLINE"", ""C"": ""DEFINE""}",B,1.2126080788406346,1.593200702361616,0.3017843857901682

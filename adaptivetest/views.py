@@ -31,8 +31,8 @@ def start_test(request):
     starting_question = model.get_next_question(newTestSession)
     newTestSession.current_question = starting_question
     newTestSession.save()
-    print("CURRENT ID", newTestSession.id)
-    print(starting_question)
+    print("CURRENT ID ", newTestSession.id)
+    print("STARTING QUESTION ", starting_question)
     # return redirect('question', session_id=newTestSession.id)
     return render(request, 'question.html', {'session_id': newTestSession.id, 'question': starting_question})
 
@@ -45,7 +45,7 @@ def question_view(request, session_id):
     if request.method == 'POST':
         # Process answer
         question_id = session.current_question.id
-        print(question_id)
+        print("QUESTION ID", question_id)
         user_answer = request.POST.get('answer')
 
         model = IRTModel()

@@ -8,9 +8,10 @@
 {% block content %}
 <div class="container">
     <div id="countdown-timer"></div>
-  {% if question.is_last %}
-  <img src="{% static 'adaptivetest/images/finishline.png' %}" class="finishline" alt="Finish Line">
-{% endif %}   
+  
+  {% if is_last %}
+    <img src="{% static 'adaptivetest/images/finishline.png' %}" class="finishline" alt="Finish Line">
+  {% endif %}   
 
     <img src="{% static 'adaptivetest/images/roxy.png' %}" class="roxy" id="roxy-character">
 

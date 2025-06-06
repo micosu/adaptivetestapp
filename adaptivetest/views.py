@@ -17,7 +17,8 @@ def start_test(request):
 
     form = TestSessionForm(request.POST)
     if not form.is_valid():
-        context = {'form': form, 'message': 'Invalid response. Please try again'}
+        error_messages = form.errors.as_text()
+        context = {'form': form, 'message': f'Invalid response: {error_messages}'}
         return render(request, 'test.html', context)
 
     age = form.cleaned_data['age']
@@ -35,7 +36,7 @@ def start_test(request):
     newTestSession.save()
 
     print("CURRENT ID", newTestSession.id)
-    print(starting_question)
+    print("Started successfully.  First question: ", starting_question)
 
     # Check if the first question is also the last one
     is_last = model.stop_test(newTestSession)
@@ -68,10 +69,11 @@ def question_view(request, session_id):
             session.save()
 
             is_last = model.stop_test(session)  # Check if the next one is the last
+            print(f"---------Question number {len(session.get_administered()[0])}.  Is last? {is_last} -------")
             return render(request, 'question.html', {
                 'session_id': session.id,
                 'question': next_question,
-                'is_last': is_last
+                'is_last': True
             })
         else:
             session.end_time = timezone.now()

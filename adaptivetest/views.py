@@ -33,16 +33,9 @@ def start_test(request):
     starting_question = model.get_next_question(newTestSession)
     newTestSession.current_question = starting_question
     newTestSession.save()
-<<<<<<< HEAD
 
-    print("CURRENT ID", newTestSession.id)
-    print(starting_question)
-=======
     print("CURRENT ID ", newTestSession.id)
     print("STARTING QUESTION ", starting_question)
-    # return redirect('question', session_id=newTestSession.id)
-    return render(request, 'question.html', {'session_id': newTestSession.id, 'question': starting_question})
->>>>>>> d1e99ef756791ae5e28c89350c02fa1f708c901f
 
     # Check if the first question is also the last one
     is_last = model.stop_test(newTestSession)
@@ -59,10 +52,7 @@ def question_view(request, session_id):
 
     if request.method == 'POST':
         question_id = session.current_question.id
-<<<<<<< HEAD
-=======
         print("QUESTION ID", question_id)
->>>>>>> d1e99ef756791ae5e28c89350c02fa1f708c901f
         user_answer = request.POST.get('answer')
 
         model = IRTModel()

@@ -1,75 +1,197 @@
 import numpy as np
 from catsim.selection import MaxInfoSelector
 from catsim.estimation import NumericalSearchEstimator
-# from catsim.irt import ThreePLModel
 from catsim.stopping import MaxItemStopper, MinErrorStopper
 from .models import QuestionBank 
 import os
 import django
 
 items = True
+
 class IRTModel:
     # Get all questions and format for catsim
-    # CHECK
     if os.environ.get('DJANGO_SETTINGS_MODULE') and django.apps.apps.ready:
         try:
             from adaptivetest.models import QuestionBank
-            all_questions = list(QuestionBank.objects.all().values("id", "discrimination", "difficulty", "guessing"))
+            all_questions = list(QuestionBank.objects.all().values("id", "discrimination", "difficulty", "guessing", "question_type"))
         except:
             all_questions = []  # Fallback when table doesn't exist
     else:
         all_questions = []
     
-    # Convert to NumPy array: [discrimination, difficulty, guessing]
-    item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in all_questions])
-
+    # Separate questions by type
+    syn_questions = [q for q in all_questions if q["question_type"] == "syn"]
+    wic_questions = [q for q in all_questions if q["question_type"] == "wic"]
+    
+    # Convert to NumPy arrays: [discrimination, difficulty, guessing, asymptote]
+    syn_item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in syn_questions])
+    wic_item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in wic_questions])
+    
     def __init__(self):
         self.selector = MaxInfoSelector()  # Selects best next question
         self.estimator = NumericalSearchEstimator()  # Updates theta
-        # self.model = ThreePLModel()  # 3PL Model (can be changed to 2PL or 1PL)
-        self.stop_items = MaxItemStopper(10)
+        self.stop_items = MaxItemStopper(12)
         self.stop_error = MinErrorStopper(.3)
-
+    
+    def _get_current_question_type(self, test_session):
+        """Determine what type of question should be asked next based on the pattern."""
+        administered_ids, _ = test_session.get_administered()
+        
+        # Count questions by type that have been administered
+        syn_count = 0
+        wic_count = 0
+        
+        for q_id in administered_ids:
+            # Find the question type for this ID
+            for q in IRTModel.all_questions:
+                if q["id"] == q_id:
+                    if q["question_type"] == "syn":
+                        syn_count += 1
+                    elif q["question_type"] == "wic":
+                        wic_count += 1
+                    break
+        
+        # Determine pattern position
+        total_administered = len(administered_ids)
+        position_in_cycle = total_administered % 6  # 5 syn + 1 wic = 6 question cycle
+        
+        # First 5 positions (0-4) should be syn, 6th position (5) should be wic
+        if position_in_cycle < 5:
+            return "syn"
+        else:
+            return "wic"
+    
+    def _get_administered_by_type(self, test_session, question_type):
+        """Get administered question indices for a specific question type."""
+        administered_ids, responses = test_session.get_administered()
+        
+        # Get the question list for the specified type
+        question_list = IRTModel.syn_questions if question_type == "syn" else IRTModel.wic_questions
+        
+        # Find indices and responses for this question type
+        type_administered = []
+        type_responses = []
+        
+        for i, q_id in enumerate(administered_ids):
+            # Check if this question ID belongs to the current type
+            for j, q in enumerate(question_list):
+                if q["id"] == q_id:
+                    type_administered.append(j)  # Index in the type-specific list
+                    type_responses.append(responses[i])
+                    break
+        
+        return type_administered, type_responses
+    
     def update_theta(self, test_session):
         """Update the test-taker's theta based on their response to the question."""
-        # item_params = np.array([question.discrimination, question.difficulty, question.guessing])
-        administered, responses = test_session.get_administered()
-
-        initial_t = test_session.current_theta
-        test_session.current_theta = self.estimator.estimate(items=IRTModel.item_bank, 
-                                                             administered_items=administered, 
-                                                             response_vector=responses,
-                                                             est_theta=test_session.current_theta)
+        administered_ids, all_responses = test_session.get_administered()
         
-        print(f"The most recent was {'Correct' if responses[-1] else 'Incorrect'}")
-        print(f"So theta changed from {initial_t} to {test_session.current_theta}")
+        if not administered_ids:
+            return
+        
+        # Get the type of the most recent question
+        last_question_id = administered_ids[-1]
+        last_question_type = None
+        
+        for q in IRTModel.all_questions:
+            if q["id"] == last_question_id:
+                last_question_type = q["question_type"]
+                break
+        
+        if not last_question_type:
+            print(f"Warning: Could not find question type for ID {last_question_id}")
+            return
+        
+        # Get administered items and responses for this question type
+        type_administered, type_responses = self._get_administered_by_type(test_session, last_question_type)
+        
+        if not type_administered:
+            print(f"Warning: No administered items found for type {last_question_type}")
+            return
+        
+        # Select the appropriate item bank
+        item_bank = IRTModel.syn_item_bank if last_question_type == "syn" else IRTModel.wic_item_bank
+        
+        initial_theta = test_session.current_theta
+        
+        # Update theta using only questions of the same type
+        test_session.current_theta = self.estimator.estimate(
+            items=item_bank,
+            administered_items=type_administered,
+            response_vector=type_responses,
+            est_theta=test_session.current_theta
+        )
+        
+        print(f"Question type: {last_question_type}")
+        print(f"The most recent was {'Correct' if all_responses[-1] else 'Incorrect'}")
+        print(f"So theta changed from {initial_theta} to {test_session.current_theta}")
         test_session.save()
     
     def get_next_question(self, test_session):
-        """Select the next best question based on the user's current ability (theta)."""
+        """Select the next best question based on the user's current ability and question type pattern."""
         
-        # Get the indexes of already answered questions
-        # shift by to account for 0 indexing since item_bank will start at 0
-        administered = test_session.get_administered()[0]
-        available_items = [i for i, q in enumerate(IRTModel.all_questions) if q["id"] not in administered]
-
-        if not available_items:
-            return None  # No more questions available
-
-        # Select the next question
-        # item_index = selector.select(items=items, administered_items=administered_items, est_theta=est_theta)
-        print("Administered:", administered)
-        next_index = self.selector.select(items=IRTModel.item_bank, administered_items=administered, est_theta=test_session.current_theta)
-        next_question_id = IRTModel.all_questions[next_index]["id"]
-        return QuestionBank.objects.get(id=next_question_id)
-
-    
-
-    def stop_test(self, test_session):
-        administered = test_session.get_administered()[0]
-        est_theta = test_session.current_theta
-
-        if items:
-            return self.stop_items.stop(administered_items=self.item_bank[administered])
+        # Determine what type of question should be asked next
+        next_question_type = self._get_current_question_type(test_session)
+        
+        # Get administered items for this question type
+        type_administered, _ = self._get_administered_by_type(test_session, next_question_type)
+        
+        # Select the appropriate question list and item bank
+        if next_question_type == "syn":
+            question_list = IRTModel.syn_questions
+            item_bank = IRTModel.syn_item_bank
         else:
-            return self.stop_error.stop(administered_items=self.item_bank[administered], theta=est_theta)
+            question_list = IRTModel.wic_questions
+            item_bank = IRTModel.wic_item_bank
+        
+        # Check if there are available questions of this type
+        available_items = [i for i in range(len(question_list)) if i not in type_administered]
+        
+        if not available_items:
+            print(f"No more {next_question_type} questions available")
+            return None
+        
+        # Select the next question using CAT algorithm
+        print(f"Next question type: {next_question_type}")
+        print(f"Administered {next_question_type} items:", type_administered)
+        
+        next_index = self.selector.select(
+            items=item_bank,
+            administered_items=type_administered,
+            est_theta=test_session.current_theta
+        )
+        
+        next_question_id = question_list[next_index]["id"]
+        return QuestionBank.objects.get(id=next_question_id)
+    
+    def stop_test(self, test_session):
+        """Determine if the test should stop based on stopping criteria."""
+        administered_ids, _ = test_session.get_administered()
+        
+        # Get administered items from both question types
+        syn_administered, _ = self._get_administered_by_type(test_session, "syn")
+        wic_administered, _ = self._get_administered_by_type(test_session, "wic")
+        
+        # Create combined administered items array with item parameters
+        combined_administered_items = []
+        
+        # Add syn items
+        if syn_administered:
+            syn_items = IRTModel.syn_item_bank[syn_administered]
+            combined_administered_items.extend(syn_items)
+        
+        # Add wic items  
+        if wic_administered:
+            wic_items = IRTModel.wic_item_bank[wic_administered]
+            combined_administered_items.extend(wic_items)
+        
+        if not combined_administered_items:
+            return False  # No items administered yet
+        
+        # Convert to numpy array
+        administered_items_array = np.array(combined_administered_items)
+        
+        if items:
+            return self.stop_items.stop(administered_items=administered_items_array)
+        else:
+            return self.stop_error.stop(administered_items=administered_items_array, theta=test_session.current_theta)

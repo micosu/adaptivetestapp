@@ -58,7 +58,8 @@ def compute_irt_params(word_attrs, min_log_freq, max_log_freq):
     
     # Calculate difficulty (b) with rebalanced weights
     # Age of acquisition: 40%, frequency: 40%, lexile: 20%
-    raw_b = 0.4 * age_centered + 0.4 * freq_factor + 0.2 * lexile_factor
+    # + .5 for WIC only
+    raw_b = 0.4 * age_centered + 0.4 * freq_factor + 0.2 * lexile_factor # + .5
     
     # Apply a very gentle sigmoid to ensure we have room at the top
     # This version only compresses values that are already near the extremes
@@ -114,8 +115,8 @@ def main():
     # Set up command line argument parsing
     parser = argparse.ArgumentParser(description='Merge word attributes with questions and compute IRT parameters')
     parser.add_argument('--words', dest='words_file', default="only_lexile_all_columns.csv", help='Path to lexile file')
-    parser.add_argument('--questions', dest='questions_file', default="words.csv", help='Path to questions file')
-    parser.add_argument('--output', dest='output_file', default="improved_question_bank.csv", help='Path to question bank')
+    parser.add_argument('--questions', dest='questions_file', default="wic.csv", help='Path to questions file')
+    parser.add_argument('--output', dest='output_file', default="wic_question_bank.csv", help='Path to question bank')
     args = parser.parse_args()
     
     # File paths
@@ -226,7 +227,7 @@ def main():
         discriminations.append(a)
         difficulties.append(b)
         guessings.append(c)
-        text.append(f"Choose the word that has a similar meaning to {question_row['word'].upper()}")
+        text.append(f"{question_row['text']}")
     
     # Add the computed parameters to the questions dataframe
     questions_df['discrimination'] = discriminations

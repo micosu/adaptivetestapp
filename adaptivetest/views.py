@@ -1,11 +1,18 @@
 from django.shortcuts import render, redirect
+from django.urls import reverse
 from .models import QuestionBank, TestSession
 from .forms import TestSessionForm
 from .irt_logic import IRTModel
 from django.utils import timezone
 
+
+# ------------------------
+# Static pages (Home, Start)
+# ------------------------
+
 def home(request):
     return render(request, 'home.html')
+
 
 def start_test(request):
     if request.method == "GET":
@@ -13,12 +20,12 @@ def start_test(request):
             'form': TestSessionForm(),
             'message': "In order to best assess your current vocabulary level, please answer the following questions"
         }
-        return render(request, 'test.html', context)
+        return render(request, 'adaptivetest/test.html', context)
 
     form = TestSessionForm(request.POST)
     if not form.is_valid():
         context = {'form': form, 'message': 'Invalid response. Please try again'}
-        return render(request, 'test.html', context)
+        return render(request, 'adaptivetest/test.html', context)
 
     age = form.cleaned_data['age']
     grade = form.cleaned_data['grade']
@@ -37,14 +44,55 @@ def start_test(request):
     print("CURRENT ID ", newTestSession.id)
     print("STARTING QUESTION ", starting_question)
 
-    # Check if the first question is also the last one
-    is_last = model.stop_test(newTestSession)
+    # Redirect to intro slide sequence
+    return redirect('brick1', session_id=newTestSession.id)
 
-    return render(request, 'question.html', {
-        'session_id': newTestSession.id,
-        'question': starting_question,
-        'is_last': is_last
+
+# ------------------------
+# Intro + Tutorial Slide Flow
+# ------------------------
+
+def brick_welcomes_players1(request, session_id):
+    return render(request, 'adaptivetest/brick_welcomes_players1.html', {
+        'redirect_url': reverse('brick2', args=[session_id])
     })
+
+def brick_welcomes_players2(request, session_id):
+    return render(request, 'adaptivetest/brick_welcomes_players2.html', {
+        'redirect_url': reverse('tutorial1', args=[session_id])
+    })
+
+def tutorial1(request, session_id):
+    return render(request, 'adaptivetest/tutorial1.html', {
+        'redirect_url': reverse('tutorial2', args=[session_id])
+    })
+
+def tutorial2(request, session_id):
+    return render(request, 'adaptivetest/tutorial2.html', {
+        'redirect_url': reverse('tutorial3', args=[session_id])
+    })
+
+def tutorial3(request, session_id):
+    return render(request, 'adaptivetest/tutorial3.html', {
+        'redirect_url': reverse('get_ready', args=[session_id])
+    })
+
+def get_ready(request, session_id):
+    return render(request, 'adaptivetest/get_ready.html', {
+        'redirect_url': reverse('game_countdown', args=[session_id])
+    })
+
+
+# ------------------------
+# Countdown & Question Flow
+# ------------------------
+
+def game_countdown(request, session_id):
+    redirect_url = reverse('question', args=[session_id])
+    return render(request, 'adaptivetest/countdown.html', {
+        'redirect_url': redirect_url
+    })
+
 
 def question_view(request, session_id):
     """Display current question and handle responses"""
@@ -88,6 +136,11 @@ def question_view(request, session_id):
         'question': session.current_question,
         'is_last': is_last
     })
+
+
+# ------------------------
+# Results
+# ------------------------
 
 def test_results(request, session_id):
     """Display test results"""

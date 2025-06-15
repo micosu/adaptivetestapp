@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "countdown.html" %}
 {% load static %}
 
 {% block styles %}
@@ -7,117 +7,142 @@
 
 {% block content %}
 <div class="container">
-    <div id="countdown-timer"></div>
-  {% if question.is_last %}
-  <img src="{% static 'adaptivetest/images/finishline.png' %}" class="finishline" alt="Finish Line">
-{% endif %}   
+  <div id="vignette-overlay" class="vignette hidden"></div>
 
+  <!-- 🟡 Progress Bar -->
+  <div id="progress-container">
+    <div id="progress-fill"></div>
+    <img id="progress-flag" src="{% static 'adaptivetest/images/flag.png' %}" alt="Finish" />
+  </div>
+
+  <!-- Roxy + Feedback -->
+  <div class="roxy-wrapper" id="roxy-wrapper">
     <img src="{% static 'adaptivetest/images/roxy.png' %}" class="roxy" id="roxy-character">
+    <img id="feedback-image" src="" alt="Feedback" class="feedback-image" />
+  </div>
 
-    <h2>{{ question.text }}</h2>
+  <!-- Prompt -->
+  <h2 id="prompt">{{ question.text }}</h2>
 
-    <form id="question-form" method="POST" action="{% url 'question' session_id %}">
-        {% csrf_token %}
-        {% for label, choice_text in question.choices.items %}
-            <label 
-              class="choice-label {% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}"
-              data-position="{% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}">
-                <input type="radio" name="answer" value="{{ label }}" required>
-                {{ choice_text }}
-            </label>
-        {% endfor %}
-    </form>
+  <!-- Answer choices -->
+  <form id="question-form" method="POST" action="{% url 'question' session_id %}">
+    {% csrf_token %}
+    {% for label, choice_text in question.choices.items %}
+      <label class="choice-label {% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}">
+        <input type="radio" name="answer" value="{{ label }}" required>
+        {{ choice_text }}
+      </label>
+    {% endfor %}
+  </form>
+
+  <!-- Finish line (hidden until timeout) -->
+  <img src="{% static 'adaptivetest/images/finishline.png' %}" id="finishline" class="finishline hidden" alt="Finish Line">
 </div>
+
+<!-- 🔊 Sounds -->
+<audio id="correct-sound" src="{% static 'adaptivetest/sounds/correct.m4a' %}"></audio>
+<audio id="incorrect-sound" src="{% static 'adaptivetest/sounds/incorrect.m4a' %}"></audio>
 {% endblock %}
 
 {% block extra_scripts %}
+<div id="session-data" data-session-id="{{ session_id }}"></div>
+
 <script>
   let submitted = false;
-  const roxy = document.getElementById('roxy-character');
+  const wrapper = document.getElementById('roxy-wrapper');
+  const feedback = document.getElementById('feedback-image');
+  const vignette = document.getElementById('vignette-overlay');
+  const finishLine = document.getElementById('finishline');
+  const correctSound = document.getElementById('correct-sound');
+  const incorrectSound = document.getElementById('incorrect-sound');
 
-  // 🟡 Default to middle lane if this is the first question
-  let savedTrack = sessionStorage.getItem("roxyTrack");
-  if (!savedTrack) {
-    savedTrack = "middle";
-    sessionStorage.setItem("roxyTrack", savedTrack);
-  }
+  // Roxy starting position
+  const saved = sessionStorage.getItem('roxyTrack') || 'middle';
+  const positions = { left:'8%', middle:'40%', right:'72%' };
+  sessionStorage.setItem('roxyTrack', saved);
+  wrapper.style.left = positions[saved];
 
-  // 🟢 Apply saved position
-  if (savedTrack === "left") {
-    roxy.style.left = "8%";
-  } else if (savedTrack === "middle") {
-    roxy.style.left = "40%";
-  } else if (savedTrack === "right") {
-    roxy.style.left = "72%";
-  }
+  const correctAnswer = "{{ question.correct_answer|escapejs }}";
 
-  // 🔵 When the user selects an answer
-  document.querySelectorAll('input[type="radio"][name="answer"]').forEach((radio, index) => {
-    radio.addEventListener('change', function () {
+  document.querySelectorAll('input[name="answer"]').forEach((radio, idx) => {
+    radio.addEventListener('change', () => {
       if (submitted) return;
       submitted = true;
 
-      let selectedTrack;
-      if (index === 0) {
-        roxy.style.left = "8%";
-        selectedTrack = "left";
-      } else if (index === 1) {
-        roxy.style.left = "40%";
-        selectedTrack = "middle";
+      const trackKey = idx === 0 ? 'left' : idx === 1 ? 'middle' : 'right';
+      wrapper.classList.add('no-bounce');
+      wrapper.style.left = positions[trackKey];
+      sessionStorage.setItem('roxyTrack', trackKey);
+      setTimeout(() => wrapper.classList.remove('no-bounce'), 800);
+
+      const selected = radio.value.trim().toUpperCase();
+      const correct = correctAnswer.trim().toUpperCase();
+
+      if (selected === correct) {
+        feedback.src = '{% static "adaptivetest/images/correct.png" %}?v=4';
+        correctSound.play();
+        vignette.classList.remove('hidden', 'red');
+        vignette.classList.add('show', 'green');
       } else {
-        roxy.style.left = "72%";
-        selectedTrack = "right";
+        feedback.src = '{% static "adaptivetest/images/incorrect.png" %}?v=4';
+        incorrectSound.play();
+        vignette.classList.remove('hidden', 'green');
+        vignette.classList.add('show', 'red');
       }
 
-      sessionStorage.setItem("roxyTrack", selectedTrack);
+      feedback.style.display = 'block';
 
       setTimeout(() => {
+        feedback.style.display = 'none';
         document.getElementById('question-form').submit();
-      }, 400);
+        vignette.classList.remove('show');
+        setTimeout(() => vignette.classList.add('hidden'), 400);
+      }, 1000);
     });
   });
 
-  // 🕒 Countdown Timer (2 minutes total for whole test)
-  const TOTAL_TIME = 2 * 60 * 1000;
-  let startTime = sessionStorage.getItem('quizStartTime');
-  if (!startTime) {
-    startTime = Date.now();
-    sessionStorage.setItem('quizStartTime', startTime);
-  } else {
-    startTime = parseInt(startTime);
-  }
+  // Timer + Finish Logic
+  const TOTAL = 2 * 60 * 1000; // 2 minutes
+  const start = parseInt(sessionStorage.getItem('quizStartTime')) || Date.now();
+  sessionStorage.setItem('quizStartTime', start);
 
-  const timerDiv = document.getElementById('countdown-timer');
-  timerDiv.style.position = 'fixed';
-  timerDiv.style.top = '12px';
-  timerDiv.style.right = '24px';
-  timerDiv.style.background = 'white';
-  timerDiv.style.padding = '10px 18px';
-  timerDiv.style.borderRadius = '14px';
-  timerDiv.style.fontWeight = 'bold';
-  timerDiv.style.fontSize = '18px';
-  timerDiv.style.boxShadow = '0 2px 6px rgba(0,0,0,0.3)';
-  timerDiv.style.zIndex = '999';
+  function update() {
+    const elapsed = Date.now() - start;
+    document.getElementById('progress-fill').style.width = `${Math.min(100, (elapsed / TOTAL) * 100)}%`;
 
-  function updateTimer() {
-    const now = Date.now();
-    const elapsed = now - startTime;
-    const remaining = TOTAL_TIME - elapsed;
-
-    if (remaining <= 0) {
+    if (elapsed >= TOTAL) {
+      clearInterval(timer);
       sessionStorage.removeItem('quizStartTime');
-      timerDiv.innerText = '00:00';
-      window.location.href = "{% url 'results' session_id %}";
-    } else {
-      const minutes = String(Math.floor(remaining / 60000)).padStart(2, '0');
-      const seconds = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
-      timerDiv.innerText = `${minutes}:${seconds}`;
+
+      // Hide prompt & answers
+      document.querySelectorAll('#prompt, .choice-label').forEach(el => el.remove());
+
+      // Roxy animation setup
+finishLine.classList.remove('hidden');
+
+const rect = wrapper.getBoundingClientRect();
+const fin = finishLine.getBoundingClientRect();
+
+// Calculate currentLeft and currentBottom in percentage relative to the container
+const container = document.querySelector('.container');
+const containerRect = container.getBoundingClientRect();
+
+const currentLeft = ((rect.left - containerRect.left + rect.width / 2) / containerRect.width) * 100 + '%';
+const currentBottom = ((containerRect.bottom - rect.bottom) / containerRect.height) * 100 + '%';
+
+wrapper.style.setProperty('--current-left', currentLeft);
+wrapper.style.setProperty('--current-bottom', currentBottom);
+
+wrapper.classList.add('run-and-shrink');
+
+wrapper.addEventListener('animationend', () => {
+  window.location.href = `/results/${document.getElementById('session-data').dataset.sessionId}`;
+}, { once: true });
+
     }
   }
 
-  updateTimer();
-  setInterval(updateTimer, 1000);
+  const timer = setInterval(update, 1000);
+  update();
 </script>
-
-
 {% endblock %}

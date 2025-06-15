@@ -17,7 +17,40 @@ body {
 }
 
 /* ----------------------------
-   Banner/Header (original)
+   Progress Bar
+----------------------------- */
+#progress-container {
+  position: fixed;
+  top: 40px;
+  right: 30px;
+  width: 220px;
+  height: 30px;
+  background-color: #16013a;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  padding: 0 6px;
+  z-index: 999;
+}
+
+#progress-fill {
+  height: 80%;
+  width: 0%;
+  background: linear-gradient(to right, #ffb347, #ffff00);
+  border-radius: 8px;
+  transition: width 0.4s ease;
+  margin-left: -.5px;
+}
+
+#progress-flag {
+  position: absolute;
+  right: -20px;
+  top: -40px;
+  width: 60px;
+}
+
+/* ----------------------------
+   Banner/Header
 ----------------------------- */
 .banner {
   background-color: white;
@@ -52,7 +85,7 @@ header:after {
 }
 
 /* ----------------------------
-   Main Content Area
+   Main Content
 ----------------------------- */
 .main-content {
   flex: 1;
@@ -63,7 +96,7 @@ header:after {
 }
 
 /* ----------------------------
-   Game Container w/ Track
+   Game Container
 ----------------------------- */
 .container {
   width: 812px;
@@ -79,22 +112,24 @@ header:after {
 }
 
 /* ----------------------------
-   Prompt Word Styling
+   Prompt Text (h2)
 ----------------------------- */
 .container h2 {
   position: absolute;
-  top: 30px;
+  top: 0px;
   left: 50%;
   transform: translateX(-50%);
-  background: white;
-  color: black;
+  background: rgba(30, 0, 95, 0.9);
+  color: white;
+  padding: 20px 20px;
   font-size: 28px;
-  font-weight: bold;
-  padding: 10px 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  z-index: 2;
+  max-width: 90%;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  line-height: 1.2;
+  z-index: 9999;
 }
+
 
 /* ----------------------------
    Answer Choices
@@ -102,17 +137,17 @@ header:after {
 .choice-label {
   position: absolute;
   top: 240px;
-  background: white;
+  font-family: 'Bungee', sans-serif;
+  font-size: 25px;
+  font-weight: 900;
   color: black;
-  font-family: 'Impact', sans-serif;
-  font-size: 22px;
-  padding: 10px 20px;
-  border-radius: 12px;
+  background: transparent;
+  -webkit-text-stroke: 1.2px white;
   text-shadow:
-    -2px -2px 0 white,
-     2px -2px 0 white,
-    -2px  2px 0 white,
-     2px  2px 0 white;
+    -1px -1px 0 white,
+     1px -1px 0 white,
+    -1px  1px 0 white,
+     1px  1px 0 white;
   cursor: pointer;
   z-index: 2;
   transform: translateX(-50%) scale(0.5);
@@ -120,32 +155,56 @@ header:after {
   animation: zoom-slide-in 0.8s ease-out forwards;
 }
 
-.choice-label.left {
-  left: 30%;
-  animation-delay: 0s;
-}
-
-.choice-label.middle {
-  left: 50%;
-  animation-delay: 0s;
-}
-
-.choice-label.right {
-  left: 70%;
-  animation-delay: 0s;
-}
+.choice-label.left  { left: 25%; animation-delay: 0s; }
+.choice-label.middle { left: 50%; animation-delay: 0s; }
+.choice-label.right { left: 75%; animation-delay: 0s; }
 
 .choice-label:hover {
   transform: translateX(-50%) scale(1.1);
 }
 
-/* Hide the default round radio buttons */
 input[type="radio"] {
   display: none;
 }
 
 /* ----------------------------
-   Slide-In Animation
+   Feedback + Roxy
+----------------------------- */
+.roxy-wrapper {
+  position: absolute;
+  bottom: -80px;
+  left: 47%;
+  transition: left 0.8s ease-in-out;
+  z-index: 30;
+}
+
+.roxy {
+  width: 200px;
+  animation: roxy-bounce 1s infinite ease-in-out;
+}
+
+.feedback-image {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-10px);
+  width: 80px;
+  z-index: 4;
+  display: none;
+  animation: fade-in 0.3s ease-out;
+}
+
+/* ----------------------------
+   Roxy Bounce Animation
+----------------------------- */
+@keyframes roxy-bounce {
+  0%   { transform: translateY(0); }
+  50%  { transform: translateY(-10px); }
+  100% { transform: translateY(0); }
+}
+
+/* ----------------------------
+   Entry Animation for Choices
 ----------------------------- */
 @keyframes zoom-slide-in {
   0% {
@@ -163,66 +222,88 @@ input[type="radio"] {
   }
 }
 
-/* ----------------------------
-   Roxy Character Animation
------------------------------ */
-#roxy-character {
-  width: 200px;
-  position: absolute;
-  bottom: -80px;
-  left: 47%; /* visually centered on middle lane */
-  transform: translateX(-50%);
-  transition: left 0.4s ease;
-  animation: roxy-bounce 1s infinite ease-in-out;
-  z-index: 2;
-}
-
-
-
-@keyframes roxy-bounce {
-  0%   { transform: translateY(0); }
-  50%  { transform: translateY(-10px); }
-  100% { transform: translateY(0); }
-}
-
-
-/* ----------------------------
-   Responsive Tweaks
------------------------------ */
-@media (max-width: 768px) {
-  .container {
-    width: 95%;
-    height: auto;
-    padding: 20px 10px;
+@keyframes run-and-shrink {
+  0% {
+    left: var(--current-left);
+    bottom: var(--current-bottom);
+    transform: translateX(-50%) scale(1);
+    opacity: 1;
   }
-
-  .container h2 {
-    font-size: 1.4rem;
-    top: 20px;
-  }
-
-  .choice-label {
-    font-size: 1rem;
-    padding: 8px 12px;
-  }
-
-  .choice-label.left {
-    left: 20%;
-  }
-
-  .choice-label.middle {
+  80% {
     left: 50%;
+    bottom: 30%; /* approach finishline */
+    transform: translateX(-50%) scale(0.6);
+    opacity: 1;
   }
+  100% {
+    left: 50%;
+    bottom: 30%; /* under the arch */
+    transform: translateX(-50%) scale(0.3);
+    opacity: 0;
+  }
+}
 
-  .choice-label.right {
-    left: 80%;
-  }
+
+
+.roxy-wrapper {
+  position: absolute;
+  bottom: -80px; /* initial static value */
+  left: 47%;
+  transition: left 0.8s ease-in-out;
+  z-index: 30;
+}
+
+.roxy-wrapper.run-and-shrink {
+  animation: run-and-shrink 3s ease-in-out forwards;
+  transform-origin: center center;
+}
+
+.vignette {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.vignette.show {
+  opacity: 1;
+}
+
+.vignette.green {
+  background: radial-gradient(ellipse at center, 
+    rgba(0, 255, 0, 0) 50%, 
+    rgba(0, 255, 0, 0.05) 70%, 
+    rgba(0, 255, 0, 0.08) 85%, 
+    rgba(0, 255, 0, 0.1) 95%);
+}
+
+.vignette.red {
+  background: radial-gradient(ellipse at center, 
+    rgba(255, 0, 0, 0) 50%, 
+    rgba(255, 0, 0, 0.05) 70%, 
+    rgba(255, 0, 0, 0.08) 85%, 
+    rgba(255, 0, 0, 0.1) 95%);
+}
+
+.hidden {
+  display: none;
 }
 
 .finishline {
-  position: absolute;
-  bottom: 10px;
-  right: 20px;
-  height: 100px;
-  z-index: 1;
+  position: fixed;
+  top: 25%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  z-index: 10; /* behind Roxy */
+}
+
+
+.hidden {
+  display: none;
 }

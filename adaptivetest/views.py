@@ -34,7 +34,7 @@ def start_test(request):
     language = form.cleaned_data['language']
     lexile = form.cleaned_data.get('lexile')
 
-    newTestSession = TestSession(age=age, grade=grade, hours=hours, is_esl=language, lexile=lexile)
+    newTestSession = TestSession(age=age, grade=grade, hours=hours, language=language, lexile=lexile)
     newTestSession.save()
 
     model = IRTModel()
@@ -108,7 +108,7 @@ def question_view(request, session_id):
         question = QuestionBank.objects.get(id=question_id)
         is_correct = (user_answer == question.correct_answer)
 
-        session.add_question(question_id, is_correct)
+        session.add_question(question_id, is_correct, user_answer, timezone.now())
         model.update_theta(session)
 
         next_question = model.get_next_question(session)
@@ -159,3 +159,17 @@ def test_results(request, session_id):
         'total_questions': total_questions,
         'catboost': for_catboost[::-1]
     })
+
+# In template
+def view_stats(request):
+    # question, correct, time to answer, syn or wic
+    # total questions answered, average time per syn, average time per wic
+    all_stats = []
+    context = {}
+    for session in TestSession.objects.all():
+        stat = {}
+        stats = session.get_stats()
+        stat["question"] = stats
+        
+
+    return render(request, 'stats.html', {"stats": all_stats})

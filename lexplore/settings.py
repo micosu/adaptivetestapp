@@ -29,7 +29,7 @@ SECRET_KEY = os.environ.get('SECRET_KEY', default='django-insecure-+g(r=5l*uw+9_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', default='True')
 
-ALLOWED_HOSTS = ["34.239.132.180"]
+ALLOWED_HOSTS = ["34.239.132.180", "127.0.0.1", "localhost"]
 
 
 # Application definition
@@ -79,23 +79,25 @@ WSGI_APPLICATION = 'lexplore.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 # Development
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.sqlite3',
-#        'NAME': BASE_DIR / 'db.sqlite3',
-#    }
-#}
-
-# Deployment
-DATABASES = {
-    'default': {
-        'OPTIONS': {'charset': 'utf8mb4'},
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'django',
-        'USER': '',
-        'PASSWORD': '',
+# if we are in development
+if DEBUG:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
+# Deployment
+else:
+    DATABASES = {
+        'default': {
+            'OPTIONS': {'charset': 'utf8mb4'},
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': 'django',
+            'USER': '',
+            'PASSWORD': '',
+        }
+    }
 
 
 # Password validation

@@ -43,7 +43,7 @@ class TestSession(models.Model):
     age = models.IntegerField()
     grade = models.CharField(max_length=10)
     hours = models.FloatField()
-    is_esl = models.BooleanField()
+    language = models.BooleanField()
 
     start_time = models.DateTimeField(auto_now_add=True)
     end_time = models.DateTimeField(null=True, blank=True)
@@ -78,7 +78,7 @@ class TestSession(models.Model):
             theta -= 0.3
 
         # Adjust for ESL status with a smaller penalty
-        if self.is_esl:
+        if self.language:
             theta -= 0.2  # Instead of -0.3, so it's less extreme
 
         # Normalize Lexile score, but reduce its impact
@@ -92,10 +92,14 @@ class TestSession(models.Model):
         print("Initial theta is:", round(theta, 2))
         return round(theta, 2)
     
-    def add_question(self, question_id, is_correct):
+    def add_question(self, question_id, is_correct, user_answer, answered_time):
         answered = self.answered_questions  # Retrieve current list
-        answered.append({"question_id": question_id, "is_correct": is_correct})  # Append new entry
-        self.answered_questions = answered  # Update field
+        answered.append({"question_id": question_id, 
+                         "is_correct": is_correct, 
+                         "user_answer": user_answer,
+                         "answered_time": answered_time.isoformat()})  # Append new entry
+        print(answered)
+        # self.answered_questions = answered  # Update field
         self.save()
 
     
@@ -115,3 +119,21 @@ class TestSession(models.Model):
         # print("Answered IDs", answered_ids)
         # print("Correctness", is_correct)
         return answered_ids, is_correct
+    
+    def get_stats(self):
+        stats = [] # question, correct, time to answer, syn or wic
+        # total questions answered, average time per syn, average time per wic
+        for i in range(len(self.answered_questions)):
+            question_stats = self.answered_questions[i]
+             
+            if i == 0:
+                answer_time = ["answered_time"] - self.start_time
+            else:
+                prev_stats = self.answered_questions[i-1]
+                answer_time = question_stats["answered_time"] - prev_stats["answered_time"]
+
+            question = QuestionBank.objects.get(id=question_stats['question_id'])
+            stats.append(question, question_stats["is_correct"], question_stats["user_answer"], answer_time)
+
+
+        return stats

@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
+from dotenv import load_dotenv
 from pathlib import Path
 import os
 
@@ -21,12 +22,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-+g(r=5l*uw+9_7xqxr33+(&7qjg13_8395#k%$gz&souphwmnx'
+SECRET_KEY = os.environ.get('SECRET_KEY', default='django-insecure-+g(r=5l*uw+9_7xqxr33+(&7qjg13_8395#k%$gz&souphwmnx')
+
+# SECRET_KEY = 'django-insecure-+g(r=5l*uw+9_7xqxr33+(&7qjg13_8395#k%$gz&souphwmnx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', default='True')
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["34.239.132.180"]
 
 
 # Application definition
@@ -75,10 +78,22 @@ WSGI_APPLICATION = 'lexplore.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# Development
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
+# Deployment
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'OPTIONS': {'charset': 'utf8mb4'},
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'django',
+        'USER': '',
+        'PASSWORD': '',
     }
 }
 

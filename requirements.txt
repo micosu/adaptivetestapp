@@ -15,6 +15,7 @@ cycler==0.12.1
 daphne==4.1.2
 defusedxml==0.7.1
 Django==5.1.5
+dotenv==0.9.9
 fonttools==4.56.0
 hyperlink==21.0.0
 idna==3.10
@@ -24,6 +25,7 @@ json-tricks==3.17.3
 kiwisolver==1.4.8
 matplotlib==3.10.1
 mpmath==1.3.0
+mysqlclient==2.2.7
 Naked==0.1.32
 numexpr==2.10.2
 numpy==2.2.4
@@ -38,6 +40,7 @@ PyJWT==2.10.1
 pyOpenSSL==25.0.0
 pyparsing==3.2.2
 python-dateutil==2.9.0.post0
+python-dotenv==1.1.0
 python3-openid==3.2.0
 PyYAML==6.0.2
 requests==2.32.3
@@ -45,6 +48,7 @@ requests-oauthlib==2.0.0
 scikit-learn==1.6.1
 scipy==1.15.2
 service-identity==24.2.0
+setuptools==80.9.0
 shellescape==3.8.1
 six==1.17.0
 social-auth-app-django==5.4.3

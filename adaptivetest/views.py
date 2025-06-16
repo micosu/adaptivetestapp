@@ -122,12 +122,19 @@ def question_view(request, session_id):
             return render(request, 'question.html', {
                 'session_id': session.id,
                 'question': next_question,
-                'is_last': True
+                'is_last': is_last
             })
         else:
-            session.end_time = timezone.now()
-            session.save()
-            return redirect('results', session_id=session.id)
+            if session.end_time:
+                return redirect('results', session_id=session.id)
+            else:
+                session.end_time = timezone.now()
+                session.save()
+                return render(request, 'question.html', {
+                    'session_id': session.id,
+                    'is_last': is_last
+                    })
+            
 
     # GET request
     model = IRTModel()

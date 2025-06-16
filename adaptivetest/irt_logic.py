@@ -10,28 +10,41 @@ items = True
 
 class IRTModel:
     # Get all questions and format for catsim
-    if os.environ.get('DJANGO_SETTINGS_MODULE') and django.apps.apps.ready:
-        try:
-            from adaptivetest.models import QuestionBank
-            all_questions = list(QuestionBank.objects.all().values("id", "discrimination", "difficulty", "guessing", "question_type"))
-        except:
-            all_questions = []  # Fallback when table doesn't exist
-    else:
-        all_questions = []
+    # if os.environ.get('DJANGO_SETTINGS_MODULE') and django.apps.apps.ready:
+    #     try:
+    #         from adaptivetest.models import QuestionBank
+    #         all_questions = list(QuestionBank.objects.all().values("id", "discrimination", "difficulty", "guessing", "question_type"))
+    #     except:
+    #         all_questions = []  # Fallback when table doesn't exist
+    # else:
+    #     all_questions = []
     
-    # Separate questions by type
-    syn_questions = [q for q in all_questions if q["question_type"] == "syn"]
-    wic_questions = [q for q in all_questions if q["question_type"] == "wic"]
+    # # Separate questions by type
+    # syn_questions = [q for q in all_questions if q["question_type"] == "syn"]
+    # wic_questions = [q for q in all_questions if q["question_type"] == "wic"]
     
-    # Convert to NumPy arrays: [discrimination, difficulty, guessing, asymptote]
-    syn_item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in syn_questions])
-    wic_item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in wic_questions])
+    # # Convert to NumPy arrays: [discrimination, difficulty, guessing, asymptote]
+    # syn_item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in syn_questions])
+    # wic_item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in wic_questions])
     
     def __init__(self):
         self.selector = MaxInfoSelector()  # Selects best next question
         self.estimator = NumericalSearchEstimator()  # Updates theta
         self.stop_items = MaxItemStopper(90)
         self.stop_error = MinErrorStopper(.3)
+
+        # Load and cache items when initialized
+        self._load_item_banks()
+
+    def _load_item_banks(self):
+        from adaptivetest.models import QuestionBank
+        self.all_questions = list(QuestionBank.objects.all().values("id", "discrimination", "difficulty", "guessing", "question_type"))
+
+        self.syn_questions = [q for q in self.all_questions if q["question_type"] == "syn"]
+        self.wic_questions = [q for q in self.all_questions if q["question_type"] == "wic"]
+
+        self.syn_item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in self.syn_questions])
+        self.wic_item_bank = np.array([[q["discrimination"], q["difficulty"], q["guessing"], 1] for q in self.wic_questions])
     
     def _get_current_question_type(self, test_session):
         """Determine what type of question should be asked next based on the pattern."""
@@ -43,7 +56,7 @@ class IRTModel:
         
         for q_id in administered_ids:
             # Find the question type for this ID
-            for q in IRTModel.all_questions:
+            for q in self.all_questions:
                 if q["id"] == q_id:
                     if q["question_type"] == "syn":
                         syn_count += 1
@@ -66,7 +79,7 @@ class IRTModel:
         administered_ids, responses = test_session.get_administered()
         
         # Get the question list for the specified type
-        question_list = IRTModel.syn_questions if question_type == "syn" else IRTModel.wic_questions
+        question_list = self.syn_questions if question_type == "syn" else self.wic_questions
         
         # Find indices and responses for this question type
         type_administered = []
@@ -93,7 +106,7 @@ class IRTModel:
         last_question_id = administered_ids[-1]
         last_question_type = None
         
-        for q in IRTModel.all_questions:
+        for q in self.all_questions:
             if q["id"] == last_question_id:
                 last_question_type = q["question_type"]
                 break
@@ -110,7 +123,7 @@ class IRTModel:
             return
         
         # Select the appropriate item bank
-        item_bank = IRTModel.syn_item_bank if last_question_type == "syn" else IRTModel.wic_item_bank
+        item_bank = self.syn_item_bank if last_question_type == "syn" else self.wic_item_bank
         
         initial_theta = test_session.current_theta
         
@@ -138,11 +151,11 @@ class IRTModel:
         
         # Select the appropriate question list and item bank
         if next_question_type == "syn":
-            question_list = IRTModel.syn_questions
-            item_bank = IRTModel.syn_item_bank
+            question_list = self.syn_questions
+            item_bank = self.syn_item_bank
         else:
-            question_list = IRTModel.wic_questions
-            item_bank = IRTModel.wic_item_bank
+            question_list = self.wic_questions
+            item_bank = self.wic_item_bank
         
         # Check if there are available questions of this type
         available_items = [i for i in range(len(question_list)) if i not in type_administered]
@@ -177,12 +190,12 @@ class IRTModel:
         
         # Add syn items
         if syn_administered:
-            syn_items = IRTModel.syn_item_bank[syn_administered]
+            syn_items = self.syn_item_bank[syn_administered]
             combined_administered_items.extend(syn_items)
         
         # Add wic items  
         if wic_administered:
-            wic_items = IRTModel.wic_item_bank[wic_administered]
+            wic_items = self.wic_item_bank[wic_administered]
             combined_administered_items.extend(wic_items)
         
         if not combined_administered_items:

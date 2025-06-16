@@ -24,14 +24,9 @@ def start_test(request):
 
     form = TestSessionForm(request.POST)
     if not form.is_valid():
-<<<<<<< HEAD
-        context = {'form': form, 'message': 'Invalid response. Please try again'}
-        return render(request, 'adaptivetest/test.html', context)
-=======
         error_messages = form.errors.as_text()
         context = {'form': form, 'message': f'Invalid response: {error_messages}'}
         return render(request, 'test.html', context)
->>>>>>> 9f0418080dfb87f8f9f46cc83742b06dc0db3cf8
 
     age = form.cleaned_data['age']
     grade = form.cleaned_data['grade']
@@ -47,13 +42,8 @@ def start_test(request):
     newTestSession.current_question = starting_question
     newTestSession.save()
 
-<<<<<<< HEAD
-    print("CURRENT ID ", newTestSession.id)
-    print("STARTING QUESTION ", starting_question)
-=======
     print("CURRENT ID", newTestSession.id)
     print("Started successfully.  First question: ", starting_question)
->>>>>>> 9f0418080dfb87f8f9f46cc83742b06dc0db3cf8
 
     # Redirect to intro slide sequence
     return redirect('brick1', session_id=newTestSession.id)

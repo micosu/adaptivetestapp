@@ -31,9 +31,11 @@ class TestSessionForm(forms.ModelForm):
     age = forms.IntegerField(label="How old are you?")
     grade = forms.ChoiceField(label="What grade are you in?", choices=GRADE_CHOICES)
     hours = forms.FloatField(label="How many hours per week do you read?")
-    language = forms.BooleanField(
-        label="Is English your first language?", 
-        widget=forms.RadioSelect(choices=[(True, 'Yes'), (False, 'No')]),
+    language = forms.TypedChoiceField(
+        label="Is English your first language?",
+        choices=[(True, 'Yes'), (False, 'No')],
+        coerce=lambda x: x == 'True',
+        widget=forms.RadioSelect,
         required=True
     )
     # lexile = forms.IntegerField(label="What is your current lexile score (optional)", required=False)

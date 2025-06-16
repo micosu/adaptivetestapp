@@ -1,17 +1,53 @@
-{% extends "base.html" %}
+{% extends "question.html" %}
+{% load static %}
 
 {% block content %}
+<style>
+  .result-container {
+    position: relative;
+    width: 100%;
+    max-width: 1000px;
+    height: auto;
+    margin: 0 auto;
+  }
 
-<div class ="container">
+  .result-background {
+    width: 100%;
+    display: block;
+    border-radius: 20px;
+  }
 
-<h1> Stats (Internal for Catboost): </h1>
-<ul>
-    <li>Total questions: {{ total_questions }}</li>
-    <!-- <li>Number Correct: {{ correct_answers }}</li> -->
-    <!-- <li>Final ability (lexile): {{ approximate_lexile }}</li> -->
-    <li>Question IDs with correctness: {{ catboost }}</li>
-</ul>
+  .overlay-box {
+  position: absolute;
+  top: 40%;
+  left: 63%;
+  transform: translate(-50%, -50%);
+  background-color: #1e1450; /* more solid background */
+  color: white;
+  padding: 30px;
+  border-radius: 20px;
+  text-align: center;
+  width: 300px;
+}
 
+.overlay-box p, .overlay-box span {
+  color: white !important;
+  text-shadow: 0 0 3px rgba(255,255,255,0.7);
+}
+
+.overlay-box .highlight {
+  color: yellow !important;
+  font-weight: bold;
+  font-size: 180%;
+}
+
+</style>
+
+<div class="result-container">
+<img src="{% static 'adaptivetest/images/result.png' %}" alt="Result Background" class="result-background">
+  <div class="overlay-box">
+    <p>Woohoo! You answered <span class="highlight"> {{ total_questions }}</span> questions in 2 minutes!</p>
+    <p>That’s some speedy thinking.<br>Here’s your prize—well earned!</p>
+  </div>
 </div>
-
 {% endblock %}

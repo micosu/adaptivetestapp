@@ -1,19 +1,153 @@
-{% extends "base.html" %}
+{% extends "countdown.html" %}
+{% load static %}
+
+{% block styles %}
+<link rel="stylesheet" href="{% static 'adaptivetest/css/adaptivetest_game.css' %}">
+{% endblock %}
 
 {% block content %}
-<div class = "container">
-    <h2>{{ question.text }}</h2>
-    <!-- <p>{{ question.text }}</p> -->
+<div class="container">
+  <div id="vignette-overlay" class="vignette hidden"></div>
+    <div id="countdown-timer"></div>
+  
+  {% if is_last %}
+    <img src="{% static 'adaptivetest/images/finishline.png' %}" class="finishline" alt="Finish Line">
+  {% endif %}   
 
-    <form method="POST" action = "{% url 'question' session_id %}">
+  <!-- 🟡 Progress Bar -->
+  <div id="progress-container">
+    <div id="progress-fill"></div>
+    <img id="progress-flag" src="{% static 'adaptivetest/images/flag.png' %}" alt="Finish" />
+  </div>
+
+  <!-- Roxy + Feedback -->
+  <div class="roxy-wrapper" id="roxy-wrapper">
+    <img src="{% static 'adaptivetest/images/roxy.png' %}" class="roxy" id="roxy-character">
+    <img id="feedback-image" src="" alt="Feedback" class="feedback-image" />
+  </div>
+
+  <!-- Prompt -->
+  <h2 id="prompt">{{ question.text }}</h2>
+
+  <!-- Answer choices -->
+  <form id="question-form" method="POST" action="{% url 'question' session_id %}">
     {% csrf_token %}
     {% for label, choice_text in question.choices.items %}
-        <label>
+      <label class="choice-label {% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}">
         <input type="radio" name="answer" value="{{ label }}" required>
-        {{ label }}: {{ choice_text }}
-        </label><br>
+        {{ choice_text }}
+      </label>
     {% endfor %}
-    <button type="submit" class = "btn">Submit</button>
-    </form>
+  </form>
+
+  <!-- Finish line (hidden until timeout) -->
+  <img src="{% static 'adaptivetest/images/finishline.png' %}" id="finishline" class="finishline hidden" alt="Finish Line">
 </div>
+
+<!-- 🔊 Sounds -->
+<audio id="correct-sound" src="{% static 'adaptivetest/sounds/correct.m4a' %}"></audio>
+<audio id="incorrect-sound" src="{% static 'adaptivetest/sounds/incorrect.m4a' %}"></audio>
+{% endblock %}
+
+{% block extra_scripts %}
+<div id="session-data" data-session-id="{{ session_id }}"></div>
+
+<script>
+  let submitted = false;
+  const wrapper = document.getElementById('roxy-wrapper');
+  const feedback = document.getElementById('feedback-image');
+  const vignette = document.getElementById('vignette-overlay');
+  const finishLine = document.getElementById('finishline');
+  const correctSound = document.getElementById('correct-sound');
+  const incorrectSound = document.getElementById('incorrect-sound');
+
+  // Roxy starting position
+  const saved = sessionStorage.getItem('roxyTrack') || 'middle';
+  const positions = { left:'8%', middle:'40%', right:'72%' };
+  sessionStorage.setItem('roxyTrack', saved);
+  wrapper.style.left = positions[saved];
+
+  const correctAnswer = "{{ question.correct_answer|escapejs }}";
+
+  document.querySelectorAll('input[name="answer"]').forEach((radio, idx) => {
+    radio.addEventListener('change', () => {
+      if (submitted) return;
+      submitted = true;
+
+      const trackKey = idx === 0 ? 'left' : idx === 1 ? 'middle' : 'right';
+      wrapper.classList.add('no-bounce');
+      wrapper.style.left = positions[trackKey];
+      sessionStorage.setItem('roxyTrack', trackKey);
+      setTimeout(() => wrapper.classList.remove('no-bounce'), 800);
+
+      const selected = radio.value.trim().toUpperCase();
+      const correct = correctAnswer.trim().toUpperCase();
+
+      if (selected === correct) {
+        feedback.src = '{% static "adaptivetest/images/correct.png" %}?v=4';
+        correctSound.play();
+        vignette.classList.remove('hidden', 'red');
+        vignette.classList.add('show', 'green');
+      } else {
+        feedback.src = '{% static "adaptivetest/images/incorrect.png" %}?v=4';
+        incorrectSound.play();
+        vignette.classList.remove('hidden', 'green');
+        vignette.classList.add('show', 'red');
+      }
+
+      feedback.style.display = 'block';
+
+      setTimeout(() => {
+        feedback.style.display = 'none';
+        document.getElementById('question-form').submit();
+        vignette.classList.remove('show');
+        setTimeout(() => vignette.classList.add('hidden'), 400);
+      }, 1000);
+    });
+  });
+
+  // Timer + Finish Logic
+  const TOTAL = 2 * 60 * 1000; // 2 minutes
+  const start = parseInt(sessionStorage.getItem('quizStartTime')) || Date.now();
+  sessionStorage.setItem('quizStartTime', start);
+
+  function update() {
+    const elapsed = Date.now() - start;
+    document.getElementById('progress-fill').style.width = `${Math.min(100, (elapsed / TOTAL) * 100)}%`;
+
+    if (elapsed >= TOTAL) {
+      clearInterval(timer);
+      sessionStorage.removeItem('quizStartTime');
+
+      // Hide prompt & answers
+      document.querySelectorAll('#prompt, .choice-label').forEach(el => el.remove());
+
+      // Roxy animation setup
+finishLine.classList.remove('hidden');
+
+const rect = wrapper.getBoundingClientRect();
+const fin = finishLine.getBoundingClientRect();
+
+// Calculate currentLeft and currentBottom in percentage relative to the container
+const container = document.querySelector('.container');
+const containerRect = container.getBoundingClientRect();
+
+const currentLeft = ((rect.left - containerRect.left + rect.width / 2) / containerRect.width) * 100 + '%';
+const currentBottom = ((containerRect.bottom - rect.bottom) / containerRect.height) * 100 + '%';
+
+wrapper.style.setProperty('--current-left', currentLeft);
+wrapper.style.setProperty('--current-bottom', currentBottom);
+
+wrapper.classList.add('run-and-shrink');
+
+wrapper.addEventListener('animationend', () => {
+  window.location.href = `/results/${document.getElementById('session-data').dataset.sessionId}`;
+}, { once: true });
+
+    }
+  }
+
+  const timer = setInterval(update, 1000);
+  update();
+</script>
 {% endblock %}

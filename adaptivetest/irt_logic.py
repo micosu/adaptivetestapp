@@ -30,7 +30,7 @@ class IRTModel:
     def __init__(self):
         self.selector = MaxInfoSelector()  # Selects best next question
         self.estimator = NumericalSearchEstimator()  # Updates theta
-        self.stop_items = MaxItemStopper(12)
+        self.stop_items = MaxItemStopper(90)
         self.stop_error = MinErrorStopper(.3)
     
     def _get_current_question_type(self, test_session):

@@ -3,7 +3,6 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <meta http-equiv="refresh" content="5; URL={{ redirect_url }}">
   <style>
     body {
       background-color: #f4f4f4;
@@ -28,7 +27,7 @@
     }
   </style>
 </head>
-<body>
+<body onclick="window.location.href='{{ redirect_url }}'">
   <div id="image-container">
     <img src="{% static 'adaptivetest/images/tutorial3.png' %}" alt="Intro Image">
   </div>

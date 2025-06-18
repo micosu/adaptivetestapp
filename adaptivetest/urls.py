@@ -21,4 +21,7 @@ urlpatterns = [
     path('countdown/<int:session_id>/', views.game_countdown, name='game_countdown'),
     path('question/<int:session_id>/', views.question_view, name='question'),
     path('results/<int:session_id>/', views.test_results, name='results'),
+
+    # Stats
+    path('stats', views.view_stats, name="stats")
 ]

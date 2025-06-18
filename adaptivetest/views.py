@@ -1,10 +1,11 @@
+from django.db.models import Avg, Count, Sum
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.utils import timezone
 from .models import QuestionBank, TestSession
 from .forms import TestSessionForm
 from .irt_logic import IRTModel
-from django.utils import timezone
-
+import statistics
 
 # ------------------------
 # Static pages (Home, Start)
@@ -169,14 +170,75 @@ def test_results(request, session_id):
 
 # In template
 def view_stats(request):
-    # question, correct, time to answer, syn or wic
-    # total questions answered, average time per syn, average time per wic
-    all_stats = []
-    context = {}
-    for session in TestSession.objects.all():
-        stat = {}
+    """Display comprehensive statistics for all sessions"""
+    all_sessions = TestSession.objects.all().order_by('-start_time')
+    session_stats = []
+    
+    # Collect stats for each session
+    for session in all_sessions:
         stats = session.get_stats()
-        stat["question"] = stats
+        session_info = {
+            'session': session,
+            'stats': stats,
+            'user': session.user,
+            'start_time': session.start_time,
+            'grade': session.grade,
+            'age': session.age,
+        }
+        session_stats.append(session_info)
+    
+    # Calculate overall aggregate statistics
+    if session_stats:
+        # Overall performance stats
+        all_stats = [s['stats'] for s in session_stats if s['stats']['total_questions'] > 0]
         
-
-    return render(request, 'stats.html', {"stats": all_stats})
+        if all_stats:
+            # Average statistics across all sessions
+            overall_stats = {
+                'total_sessions': len(all_stats),
+                'avg_questions_per_session': round(statistics.mean([s['total_questions'] for s in all_stats]), 1),
+                'avg_accuracy': round(statistics.mean([s['percent_correct'] for s in all_stats]), 1),
+                'avg_time_per_question': round(statistics.mean([s['avg_time_per_question'] for s in all_stats]), 2),
+                'avg_time_syn': round(statistics.mean([s['avg_time_syn'] for s in all_stats if s['avg_time_syn'] > 0]), 2),
+                'avg_time_wic': round(statistics.mean([s['avg_time_wic'] for s in all_stats if s['avg_time_wic'] > 0]), 2),
+                'total_questions_answered': sum([s['total_questions'] for s in all_stats]),
+                'total_syn_questions': sum([s['total_syn_questions'] for s in all_stats]),
+                'total_wic_questions': sum([s['total_wic_questions'] for s in all_stats]),
+                # 'syn_accuracy': round(statistics.mean([s['syn_percent_correct'] for s in all_stats if s['syn_percent_correct'] > 0]), 1),
+                # 'wic_accuracy': round(statistics.mean([s['wic_percent_correct'] for s in all_stats if s['wic_percent_correct'] > 0]), 1),
+            }
+            
+            # Grade-based statistics
+            grade_stats = {}
+            for session_info in session_stats:
+                grade = session_info['grade']
+                if grade not in grade_stats:
+                    grade_stats[grade] = []
+                if session_info['stats']['total_questions'] > 0:
+                    grade_stats[grade].append(session_info['stats'])
+            
+            # Calculate averages per grade
+            grade_averages = {}
+            for grade, stats_list in grade_stats.items():
+                if stats_list:
+                    grade_averages[grade] = {
+                        'count': len(stats_list),
+                        'avg_accuracy': round(statistics.mean([s['percent_correct'] for s in stats_list]), 1),
+                        'avg_time': round(statistics.mean([s['avg_time_per_question'] for s in stats_list]), 2),
+                        'avg_questions': round(statistics.mean([s['total_questions'] for s in stats_list]), 1),
+                    }
+        else:
+            overall_stats = {}
+            grade_averages = {}
+    else:
+        overall_stats = {}
+        grade_averages = {}
+    
+    context = {
+        'session_stats': session_stats,
+        'overall_stats': overall_stats,
+        'grade_averages': grade_averages,
+        'has_data': len(session_stats) > 0,
+    }
+    
+    return render(request, 'stats.html', context)

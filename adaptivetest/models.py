@@ -1,11 +1,10 @@
+from datetime import datetime
 from django.db import models
+from django.db.models import Avg, Count, Sum
 from django.contrib.auth.models import User
+from django.utils import timezone
 import numpy as np
-from catsim.cat import generate_item_bank
-from catsim.selection import MaxInfoSelector
-from catsim.estimation import NumericalSearchEstimator
-from catsim.initialization import FixedPointInitializer
-from catsim.stopping import MaxItemStopper
+import statistics
 
 # Create your models here.
 class QuestionBank(models.Model):
@@ -120,20 +119,108 @@ class TestSession(models.Model):
         # print("Correctness", is_correct)
         return answered_ids, is_correct
     
-    def get_stats(self):
-        stats = [] # question, correct, time to answer, syn or wic
-        # total questions answered, average time per syn, average time per wic
-        for i in range(len(self.answered_questions)):
-            question_stats = self.answered_questions[i]
-             
+    def get_details(self):
+        """Get detailed stats for each question in this session"""
+        stats = []  # [question_obj, is_correct, user_answer, time_to_answer, question_type]
+        
+        if not self.answered_questions:
+            return stats
+        
+        for i, question_data in enumerate(self.answered_questions):
+            # Parse the answered_time from ISO format
+            answered_time = datetime.fromisoformat(question_data["answered_time"])
+            if answered_time.tzinfo is None:
+                answered_time = timezone.make_aware(answered_time)
+            
+            # Calculate time to answer this question
             if i == 0:
-                answer_time = ["answered_time"] - self.start_time
+                # First question: time from start to answer
+                time_to_answer = (answered_time - self.start_time).total_seconds()
             else:
-                prev_stats = self.answered_questions[i-1]
-                answer_time = question_stats["answered_time"] - prev_stats["answered_time"]
-
-            question = QuestionBank.objects.get(id=question_stats['question_id'])
-            stats.append(question, question_stats["is_correct"], question_stats["user_answer"], answer_time)
-
-
+                # Subsequent questions: time from previous answer to this answer
+                prev_answered_time = datetime.fromisoformat(self.answered_questions[i-1]["answered_time"])
+                if prev_answered_time.tzinfo is None:
+                    prev_answered_time = timezone.make_aware(prev_answered_time)
+                time_to_answer = (answered_time - prev_answered_time).total_seconds()
+            
+            # Get question object
+            question = QuestionBank.objects.get(id=question_data['question_id'])
+            
+            stats.append([
+                question.text, 
+                question_data["is_correct"], 
+                question.choices[question_data["user_answer"]] if question_data["user_answer"] else "None", 
+                time_to_answer,
+                question.question_type
+            ])
+        
         return stats
+    
+    def get_stats(self):
+        """Calculate comprehensive statistics for this session"""
+        details = self.get_details()
+        if not details:
+            return {
+                'total_questions': 0,
+                'percent_correct': 0,
+                'avg_time_per_question': 0,
+                'avg_time_syn': 0,
+                'avg_time_wic': 0,
+                'total_syn_questions': 0,
+                'total_wic_questions': 0,
+                'syn_correct': 0,
+                'wic_correct': 0,
+                'syn_percent_correct': 0,
+                'wic_percent_correct': 0,
+                'total_time': 0,
+                'fastest_question': 0,
+                'slowest_question': 0,
+            }
+        # Basic stats
+        total_questions = len(details)
+        correct_answers = sum(1 for x in details if x[1])  # x[1] is is_correct
+        percent_correct = (correct_answers / total_questions * 100) if total_questions > 0 else 0
+        
+        # Time stats
+        times = [x[3] for x in details]  # x[3] is time_to_answer
+        assert(times)
+        avg_time_per_question = statistics.mean(times) if times else 0
+        total_time = sum(times)
+        fastest_question = min(times) if times else 0
+        slowest_question = max(times) if times else 0
+        
+        # Question type specific stats
+        syn_questions = [x for x in details if x[4] == 'syn']  # x[4] is question_type
+        wic_questions = [x for x in details if x[4] == 'wic']
+        
+        # SYN stats
+        total_syn_questions = len(syn_questions)
+        syn_times = [x[3] for x in syn_questions]
+        avg_time_syn = statistics.mean(syn_times) if syn_times else 0
+        syn_correct = sum(1 for x in syn_questions if x[1])
+        syn_percent_correct = (syn_correct / total_syn_questions * 100) if total_syn_questions > 0 else 0
+        
+        # WIC stats
+        total_wic_questions = len(wic_questions)
+        wic_times = [x[3] for x in wic_questions]
+        avg_time_wic = statistics.mean(wic_times) if wic_times else 0
+        wic_correct = sum(1 for x in wic_questions if x[1])
+        wic_percent_correct = (wic_correct / total_wic_questions * 100) if total_wic_questions > 0 else 0
+        
+        return {
+            'total_questions': total_questions,
+            'correct_answers': correct_answers,
+            'percent_correct': round(percent_correct, 2),
+            'avg_time_per_question': round(avg_time_per_question, 2),
+            'avg_time_syn': round(avg_time_syn, 2),
+            'avg_time_wic': round(avg_time_wic, 2),
+            'total_syn_questions': total_syn_questions,
+            'total_wic_questions': total_wic_questions,
+            'syn_correct': syn_correct,
+            'wic_correct': wic_correct,
+            # 'syn_percent_correct': round(syn_percent_correct, 1),
+            # 'wic_percent_correct': round(wic_percent_correct, 1),
+            'total_time': round(total_time, 2),
+            'fastest_question': round(fastest_question, 2),
+            'slowest_question': round(slowest_question, 2),
+        }

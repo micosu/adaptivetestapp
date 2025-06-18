@@ -18,7 +18,7 @@ def start_test(request):
     if request.method == "GET":
         context = {
             'form': TestSessionForm(),
-            'message': "In order to best assess your current vocabulary level, please answer the following questions"
+            'message': "Please answer the following questions."
         }
         return render(request, 'adaptivetest/test.html', context)
 

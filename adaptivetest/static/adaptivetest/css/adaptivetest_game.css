@@ -61,10 +61,14 @@ body {
   z-index: 100;
 }
 
-.banner h1,
+.banner h1 {
+  margin: 0; /* Remove default h1 margins */
+  padding: 4px 0; /* Add small padding if needed for spacing */
+}
+
 .banner p,
 .banner div {
-  margin: 8px 0;
+  margin: 4px 0;
 }
 
 #id_site_name {

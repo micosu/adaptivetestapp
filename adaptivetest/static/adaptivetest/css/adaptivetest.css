@@ -45,10 +45,14 @@ body {
   z-index: 100;
 }
 
-.banner h1,
+.banner h1 {
+  margin: 0; /* Remove default h1 margins */
+  padding: 4px 0; /* Add small padding if needed for spacing */
+}
+
 .banner p,
 .banner div {
-    margin: 8px 0; /* Reduce margins for all elements inside the banner */
+  margin: 4px 0;
 }
 
 header:after {
@@ -84,7 +88,7 @@ header:after {
   position: relative;
   overflow: hidden;
   margin: 0 auto; /* Ensures horizontal centering */
-  margin-top: 20px; /* Increased spacing below header */
+  margin-top: 5px; /* Increased spacing below header */
 }
 
 /* Rest of your CSS remains the same */

@@ -18,6 +18,7 @@ urlpatterns = [
     path('get_ready/<int:session_id>/', views.get_ready, name='get_ready'),
 
     # Countdown and test
+    path('quiz/set-start-time/<int:session_id>/', views.set_start_time, name="start_time"),
     path('countdown/<int:session_id>/', views.game_countdown, name='game_countdown'),
     path('question/<int:session_id>/', views.question_view, name='question'),
     path('results/<int:session_id>/', views.test_results, name='results'),

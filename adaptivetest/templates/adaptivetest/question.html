@@ -108,11 +108,33 @@
 
   // Timer + Finish Logic
   const TOTAL = 2 * 60 * 1000; // 2 minutes
-  const start = parseInt(sessionStorage.getItem('quizStartTime')) || Date.now();
-  sessionStorage.setItem('quizStartTime', start);
+  const sessionId = document.getElementById('session-data').dataset.sessionId;
+  const storageKey = `quizStartTime_${sessionId}`;
+  let start = parseInt(sessionStorage.getItem(storageKey));
+  // const start = parseInt(sessionStorage.getItem('quizStartTime')) || Date.now();
+  if (!start) {
+    start = Date.now();
+    console.log('Setting new start time:', start);
+    sessionStorage.setItem(storageKey, start);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Send to Django to save in session
+    fetch(`/quiz/set-start-time/${sessionId}/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            quizStartTime: start
+        })
+    });
+  }
+  // sessionStorage.setItem('quizStartTime', start);
 
   function update() {
     const elapsed = Date.now() - start;
+    console.log('Update called, start:', start, 'elapsed:', Date.now() - start);
     document.getElementById('progress-fill').style.width = `${Math.min(100, (elapsed / TOTAL) * 100)}%`;
 
     if (elapsed >= TOTAL) {
@@ -123,26 +145,26 @@
       document.querySelectorAll('#prompt, .choice-label').forEach(el => el.remove());
 
       // Roxy animation setup
-finishLine.classList.remove('hidden');
+      finishLine.classList.remove('hidden');
 
-const rect = wrapper.getBoundingClientRect();
-const fin = finishLine.getBoundingClientRect();
+      const rect = wrapper.getBoundingClientRect();
+      const fin = finishLine.getBoundingClientRect();
 
-// Calculate currentLeft and currentBottom in percentage relative to the container
-const container = document.querySelector('.container');
-const containerRect = container.getBoundingClientRect();
+      // Calculate currentLeft and currentBottom in percentage relative to the container
+      const container = document.querySelector('.container');
+      const containerRect = container.getBoundingClientRect();
 
-const currentLeft = ((rect.left - containerRect.left + rect.width / 2) / containerRect.width) * 100 + '%';
-const currentBottom = ((containerRect.bottom - rect.bottom) / containerRect.height) * 100 + '%';
+      const currentLeft = ((rect.left - containerRect.left + rect.width / 2) / containerRect.width) * 100 + '%';
+      const currentBottom = ((containerRect.bottom - rect.bottom) / containerRect.height) * 100 + '%';
 
-wrapper.style.setProperty('--current-left', currentLeft);
-wrapper.style.setProperty('--current-bottom', currentBottom);
+      wrapper.style.setProperty('--current-left', currentLeft);
+      wrapper.style.setProperty('--current-bottom', currentBottom);
 
-wrapper.classList.add('run-and-shrink');
+      wrapper.classList.add('run-and-shrink');
 
-wrapper.addEventListener('animationend', () => {
-  window.location.href = `/results/${document.getElementById('session-data').dataset.sessionId}`;
-}, { once: true });
+      wrapper.addEventListener('animationend', () => {
+        window.location.href = `/results/${document.getElementById('session-data').dataset.sessionId}`;
+      }, { once: true });
 
     }
   }

@@ -44,7 +44,7 @@ class TestSession(models.Model):
     hours = models.FloatField()
     language = models.BooleanField()
 
-    start_time = models.DateTimeField(auto_now_add=True)
+    start_time = models.DateTimeField(null=True, blank=True)
     end_time = models.DateTimeField(null=True, blank=True)
 
     current_theta = models.FloatField(default=0.0)

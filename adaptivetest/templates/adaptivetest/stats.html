@@ -207,7 +207,7 @@
                                 {% if session_info.user %}
                                     {{ session_info.user.username }}
                                 {% else %}
-                                    Anonymous User
+                                    Session ID: {{ session_info.id }}
                                 {% endif %}
                             </strong>
                             <div class="session-meta">

@@ -1,4 +1,5 @@
 from django.db.models import Avg, Count, Sum
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.urls import reverse
 from django.utils import timezone
@@ -6,7 +7,7 @@ from .models import QuestionBank, TestSession
 from .forms import TestSessionForm
 from .irt_logic import IRTModel
 import statistics
-
+import json
 # ------------------------
 # Static pages (Home, Start)
 # ------------------------
@@ -95,6 +96,17 @@ def game_countdown(request, session_id):
         'redirect_url': redirect_url
     })
 
+def set_start_time(request, session_id):
+    if request.method == 'POST':
+        session = TestSession.objects.get(id=session_id)
+        data = json.loads(request.body)
+        start_time = data['quizStartTime']
+        session.start_time = timezone.datetime.fromtimestamp(start_time / 1000, tz=timezone.get_current_timezone())
+        session.save()
+        print("Session Start time: ", session.start_time)
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'error'})
+
 
 def question_view(request, session_id):
     """Display current question and handle responses"""
@@ -105,6 +117,12 @@ def question_view(request, session_id):
         print("QUESTION ID", question_id)
         user_answer = request.POST.get('answer')
 
+        if session.start_time:
+            elapsed_ms = (timezone.now() - session.start_time).total_seconds() * 1000
+            time_remaining = (2 * 60 * 1000) - elapsed_ms
+        else:
+            time_remaining = 2 * 60 * 1000  # Full time if no start time yet
+
         model = IRTModel()
         question = QuestionBank.objects.get(id=question_id)
         is_correct = (user_answer == question.correct_answer)
@@ -114,37 +132,26 @@ def question_view(request, session_id):
 
         next_question = model.get_next_question(session)
 
-        if next_question and not model.stop_test(session):
+        if next_question and not model.stop_test(session, time_remaining):
             session.current_question = next_question
             session.save()
 
-            is_last = model.stop_test(session)  # Check if the next one is the last
-            print(f"---------Question number {len(session.get_administered()[0])}.  Is last? {is_last} -------")
             return render(request, 'question.html', {
                 'session_id': session.id,
                 'question': next_question,
-                'is_last': is_last
             })
         else:
-            if session.end_time:
-                return redirect('results', session_id=session.id)
-            else:
-                session.end_time = timezone.now()
-                session.save()
-                return render(request, 'question.html', {
-                    'session_id': session.id,
-                    'is_last': is_last
-                    })
+            session.end_time = timezone.now()
+            session.save()
+            return redirect('results', session_id=session.id)
             
 
     # GET request
     model = IRTModel()
-    is_last = model.stop_test(session)
 
     return render(request, 'question.html', {
         'session_id': session.id,
         'question': session.current_question,
-        'is_last': is_last
     })
 
 
@@ -181,6 +188,7 @@ def view_stats(request):
             'session': session,
             'stats': stats,
             'user': session.user,
+            'id': session.id,
             'start_time': session.start_time,
             'grade': session.grade,
             'age': session.age,

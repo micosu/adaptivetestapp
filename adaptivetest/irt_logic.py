@@ -6,7 +6,7 @@ from .models import QuestionBank
 import os
 import django
 
-items = True
+stopping_method = "time"
 
 class IRTModel:
     # Get all questions and format for catsim
@@ -177,7 +177,7 @@ class IRTModel:
         next_question_id = question_list[next_index]["id"]
         return QuestionBank.objects.get(id=next_question_id)
     
-    def stop_test(self, test_session):
+    def stop_test(self, test_session, time_remaining=None):
         """Determine if the test should stop based on stopping criteria."""
         administered_ids, _ = test_session.get_administered()
         
@@ -204,7 +204,12 @@ class IRTModel:
         # Convert to numpy array
         administered_items_array = np.array(combined_administered_items)
         
-        if items:
+        if stopping_method == "item":
             return self.stop_items.stop(administered_items=administered_items_array)
+        elif stopping_method == "time":
+            if time_remaining is not None and time_remaining <= 0:
+                return True
+            else:
+                return False
         else:
             return self.stop_error.stop(administered_items=administered_items_array, theta=test_session.current_theta)

@@ -90,7 +90,7 @@
         vignette.classList.add('show', 'green');
       } else {
         feedback.src = '{% static "adaptivetest/images/incorrect.png" %}?v=4';
-        // incorrectSound.play();
+        incorrectSound.play();
         vignette.classList.remove('hidden', 'green');
         vignette.classList.add('show', 'red');
       }

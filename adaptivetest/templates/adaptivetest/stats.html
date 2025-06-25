@@ -197,72 +197,74 @@
             {% endif %}
 
             <!-- Individual Sessions -->
-            <div class="section">
-                <h2>Individual Sessions</h2>
-                {% for session_info in session_stats %}
-                <div class="session-card">
-                    <div class="session-header">
-                        <div>
-                            <strong>
-                                {% if session_info.user %}
-                                    {{ session_info.user.username }}
-                                {% else %}
-                                    Session ID: {{ session_info.id }}
-                                {% endif %}
-                            </strong>
-                            <div class="session-meta">
-                                Grade {{ session_info.grade }} • Age {{ session_info.age }} • 
-                                {{ session_info.start_time|date:"M d, Y H:i" }}
+                <div class="section">
+                    <h2>Individual Sessions</h2>
+                    {% for session_info in session_stats %}
+                    <a href="{% url 'individual-stats' session_info.id %}" style="text-decoration: none; color: inherit;">
+                        <div class="session-card">
+                            <div class="session-header">
+                                <div>
+                                    <strong>
+                                        {% if session_info.user %}
+                                            {{ session_info.user.username }}
+                                        {% else %}
+                                            Session ID: {{ session_info.id }}
+                                        {% endif %}
+                                    </strong>
+                                    <div class="session-meta">
+                                        Grade {{ session_info.grade }} • Age {{ session_info.age }} • 
+                                        {{ session_info.start_time|date:"M d, Y H:i" }}
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
-                    
-                    {% if session_info.stats.total_questions > 0 %}
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-value">{{ session_info.stats.total_questions }}</div>
-                            <div class="stat-label">Questions Answered</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value 
-                                {% if session_info.stats.percent_correct >= 80 %}accuracy-good
-                                {% elif session_info.stats.percent_correct >= 60 %}accuracy-fair
-                                {% else %}accuracy-poor{% endif %}">
-                                {{ session_info.stats.percent_correct }}%
+                            
+                            {% if session_info.stats.total_questions > 0 %}
+                            <div class="stats-grid">
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ session_info.stats.total_questions }}</div>
+                                    <div class="stat-label">Questions Answered</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value 
+                                        {% if session_info.stats.percent_correct >= 80 %}accuracy-good
+                                        {% elif session_info.stats.percent_correct >= 60 %}accuracy-fair
+                                        {% else %}accuracy-poor{% endif %}">
+                                        {{ session_info.stats.percent_correct }}%
+                                    </div>
+                                    <div class="stat-label">Accuracy</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ session_info.stats.avg_time_per_question }}s</div>
+                                    <div class="stat-label">Avg Time/Question</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ session_info.stats.total_syn_questions }}</div>
+                                    <div class="stat-label">SYN Questions</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ session_info.stats.avg_time_syn }}s</div>
+                                    <div class="stat-label">Avg Time SYN</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ session_info.stats.total_wic_questions }}</div>
+                                    <div class="stat-label">WIC Questions</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ session_info.stats.avg_time_wic }}s</div>
+                                    <div class="stat-label">Avg Time WIC</div>
+                                </div>
+                                <div class="stat-card">
+                                    <div class="stat-value">{{ session_info.stats.total_time }}s</div>
+                                    <div class="stat-label">Total Time</div>
+                                </div>
                             </div>
-                            <div class="stat-label">Accuracy</div>
+                            {% else %}
+                            <div class="no-data">No questions answered in this session</div>
+                            {% endif %}
                         </div>
-                        <div class="stat-card">
-                            <div class="stat-value">{{ session_info.stats.avg_time_per_question }}s</div>
-                            <div class="stat-label">Avg Time/Question</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">{{ session_info.stats.total_syn_questions }}</div>
-                            <div class="stat-label">SYN Questions</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">{{ session_info.stats.avg_time_syn }}s</div>
-                            <div class="stat-label">Avg Time SYN</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">{{ session_info.stats.total_wic_questions }}</div>
-                            <div class="stat-label">WIC Questions</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">{{ session_info.stats.avg_time_wic }}s</div>
-                            <div class="stat-label">Avg Time WIC</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">{{ session_info.stats.total_time }}s</div>
-                            <div class="stat-label">Total Time</div>
-                        </div>
+                        {% endfor %}
                     </div>
-                    {% else %}
-                    <div class="no-data">No questions answered in this session</div>
-                    {% endif %}
-                </div>
-                {% endfor %}
-            </div>
+                </a>
 
         {% else %}
             <div class="no-data">

@@ -171,14 +171,16 @@ def test_results(request, session_id):
 
     return render(request, 'results.html', {
         'session': session,
-        'total_questions': total_questions,
+        'correct_questions': correct_answers,
         'catboost': for_catboost[::-1]
     })
 
-# In template
-def view_stats(request):
+def get_stats(filtered=[]):
     """Display comprehensive statistics for all sessions"""
-    all_sessions = TestSession.objects.all().order_by('-start_time')
+    if filtered:
+        all_sessions = TestSession.objects.filter(id__in=filtered).order_by('-start_time')
+    else:
+        all_sessions = TestSession.objects.order_by('-start_time')
     session_stats = []
     
     # Collect stats for each session
@@ -249,4 +251,20 @@ def view_stats(request):
         'has_data': len(session_stats) > 0,
     }
     
+    return context
+# In template
+def view_all_stats(request):
+    context = get_stats()
     return render(request, 'stats.html', context)
+
+def view_tester_stats(request):
+    context = get_stats([1,3])
+    # [26, 28, 34, 35, 36]
+    return render(request, 'stats.html', context)
+
+def view_individual_stats(request, session_id):
+    session = TestSession.objects.get(id=session_id)
+    session_info = get_stats([session_id])['session_stats'][0]
+    details = session.get_details()
+    return render(request, 'individual_stats.html', {'details': details, 'session_info': session_info})
+

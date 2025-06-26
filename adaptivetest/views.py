@@ -207,18 +207,23 @@ def get_stats(filtered=[]):
         
         if all_stats:
             # Average statistics across all sessions
+            time_syn = [s['avg_time_syn'] for s in all_stats if s['avg_time_syn'] > 0]
+            time_wic = [s['avg_time_wic'] for s in all_stats if s['avg_time_wic'] > 0]
+            syn_counts = [s['total_syn_questions'] for s in all_stats if s['total_syn_questions'] > 0]
+            wic_counts = [s['total_wic_questions'] for s in all_stats if s['total_wic_questions'] > 0]
+            
             overall_stats = {
                 'total_sessions': len(all_stats),
                 # 'total_questions_answered': sum([s['total_questions'] for s in all_stats]),
                 'avg_questions_per_session': round(statistics.mean([s['total_questions'] for s in all_stats]), 1),
                 'avg_accuracy': round(statistics.mean([s['percent_correct'] for s in all_stats]), 1),
                 'avg_time_per_question': round(statistics.mean([s['avg_time_per_question'] for s in all_stats]), 2),
-                'avg_time_syn': round(statistics.mean([s['avg_time_syn'] for s in all_stats if s['avg_time_syn'] > 0]), 2),
-                'avg_time_wic': round(statistics.mean([s['avg_time_wic'] for s in all_stats if s['avg_time_wic'] > 0]), 2),
+                'avg_time_syn': round(statistics.mean(time_syn), 2) if time_syn else 0,
+                'avg_time_wic': round(statistics.mean(time_wic), 2) if time_wic else 0,
                 # 'total_syn_questions': sum([s['total_syn_questions'] for s in all_stats]),
                 # 'total_wic_questions': sum([s['total_wic_questions'] for s in all_stats]),
-                'avg_syn_per_session': round(statistics.mean([s['total_syn_questions'] for s in all_stats if s['total_syn_questions'] > 0]), 1),
-                'avg_wic_per_session': round(statistics.mean([s['total_wic_questions'] for s in all_stats if s['total_wic_questions'] > 0]), 1),
+                'avg_syn_per_session': round(statistics.mean(syn_counts), 1) if syn_counts else 0,
+                'avg_wic_per_session': round(statistics.mean(wic_counts), 1) if wic_counts else 0,
                 # 'syn_accuracy': round(statistics.mean([s['syn_percent_correct'] for s in all_stats if s['syn_percent_correct'] > 0]), 1),
                 # 'wic_accuracy': round(statistics.mean([s['wic_percent_correct'] for s in all_stats if s['wic_percent_correct'] > 0]), 1),
             }

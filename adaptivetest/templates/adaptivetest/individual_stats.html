@@ -25,15 +25,20 @@
             color: #333;
             margin-top: 0;
         }
+        .dashboard-header {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+        }
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            gap: 15px;
             margin: 20px 0;
         }
         .stat-card {
             background: #f8f9fa;
-            padding: 20px;
+            padding: 10px;
             border-radius: 6px;
             border-left: 4px solid #007bff;
         }
@@ -53,7 +58,7 @@
             background: white;
             border: 1px solid #ddd;
             border-radius: 6px;
-            padding: 20px;
+            padding: 10px;
             margin: 15px 0;
             transition: box-shadow 0.2s;
         }
@@ -96,8 +101,8 @@
             padding: 40px;
         }
         .section {
-            margin: 40px 0;
-            padding: 20px 0;
+            margin: 10px 0;
+            padding: 10px 0;
             border-top: 2px solid #eee;
         }
         .accuracy-good { color: #28a745; }
@@ -117,9 +122,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>Individual Statistics Dashboard</h1>
+        <h1>Individual Statistics</h1>
+        <h2 style="text-align: right;"><a href="{% url 'stats' %}" style="color: inherit;">Return to All Quiz Statistics</a></h2>
         <div class="section">
             <h2>Overall Performance for Session {{session_info.id}}</h2>
+            <div class="session-meta">
+                Grade {{ session_info.grade }} • Age {{ session_info.age }} • 
+                {{ session_info.start_time|date:"M d, Y H:i" }}
+            </div>
             {% if session_info.stats.total_questions > 0 %}
                 <div class="stats-grid">
                     <div class="stat-card">
@@ -182,8 +192,7 @@
                                 Question: {{ detail.question_text }}
                             </strong>
                             <div class="session-meta">
-                                Question ID: {{ detail.question_id }} • Question Type: {{ detail.question_type }} • 
-                                {{ session_info.start_time|date:"M d, Y H:i" }}
+                                Question ID: {{ detail.question_id }} • Question Type: {{ detail.question_type }}
                             </div>
                         </div>
                     </div>

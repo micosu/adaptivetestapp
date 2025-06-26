@@ -177,9 +177,10 @@ class TestSession(models.Model):
                 'syn_percent_correct': 0,
                 'wic_percent_correct': 0,
                 'total_time': 0,
-                'fastest_question': 0,
-                'slowest_question': 0,
-                'misses': 0,
+                'syn_missed': 0,
+                'wic_missed': 0,
+                'syn_incorrect': 0,
+                'wic_incorrect': 0,
             }
         # Basic stats
         total_questions = len(details)
@@ -229,9 +230,5 @@ class TestSession(models.Model):
             'wic_missed': wic_missed,
             'syn_incorrect': total_syn_questions - (syn_correct + syn_missed),
             'wic_incorrect': total_wic_questions - (wic_correct + wic_missed),
-            # 'syn_percent_correct': round(syn_percent_correct, 1),
-            # 'wic_percent_correct': round(wic_percent_correct, 1),
             'total_time': round(total_time, 2),
-            'fastest_question': round(fastest_question, 2),
-            'slowest_question': round(slowest_question, 2),
         }

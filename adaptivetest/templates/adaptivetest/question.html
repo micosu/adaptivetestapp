@@ -59,7 +59,7 @@
     <input type="hidden" name="submit_time" id="submit_time">
     {% for label, choice_text in question.choices.items %}
       <label class="choice-label {% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}">
-        <input type="radio" name="answer" value="{{ label }}" required>
+        <input id="form_answer" type="radio" name="answer" value="{{ label }}" required>
         {{ choice_text }}
       </label>
     {% endfor %}
@@ -141,6 +141,7 @@
     feedback.style.display = 'block';
 
     setTimeout(() => {
+      document.getElementById('submit_time').value = Date.now();
       document.getElementById('question-form').submit();
     }, 1000);
   }, questionTimeLimit);
@@ -186,6 +187,7 @@ console.log("Time's up: showing image and fading...");
   const submitWithDelay = () => {
     if (globalTimeExpired) return;
     setTimeout(() => {
+      document.getElementById('submit_time').value = Date.now();
       document.getElementById('question-form').submit();
       vignette.classList.remove('show');
       setTimeout(() => vignette.classList.add('hidden'), 400);

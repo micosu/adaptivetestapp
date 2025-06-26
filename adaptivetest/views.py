@@ -115,12 +115,15 @@ def question_view(request, session_id):
         else:
             time_remaining = 2.3 * 60 * 1000
 
+        # print("User answer: ", repr(user_answer))
+
         model = IRTModel()
         question = QuestionBank.objects.get(id=question_id)
         is_correct = (user_answer == question.correct_answer)
         submit_time = int(request.POST.get('submit_time'))
         submit_time = timezone.datetime.fromtimestamp(submit_time / 1000, tz=timezone.get_current_timezone())
         print("Question Submit Time: ", submit_time)
+        
 
         session.add_question(question_id, is_correct, user_answer, submit_time)
         model.update_theta(session)
@@ -155,12 +158,15 @@ def question_view(request, session_id):
 # ------------------------
 
 def test_results(request, session_id):
+    """Display test results"""
     session = TestSession.objects.get(id=session_id)
-    question_ids, correctness = session.get_administered()
-    catboost = [
-        f"Question {qid}: {'Correct' if c else 'Incorrect'}"
-        for qid, c in zip(question_ids, correctness)
-    ][::-1]
+    total_questions = len(session.get_administered()[0])
+    for_catboost = [
+        f"Question {ind}: Correct" if correct else f"Question {ind}: Incorrect"
+        for ind, correct in zip(session.get_administered()[0], session.get_administered()[1])
+    ]
+    correct_answers = sum(1 for correct in session.get_administered()[1] if correct)
+
     return render(request, 'results.html', {
         'session': session,
         'correct_questions': correct_answers,

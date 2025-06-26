@@ -38,7 +38,7 @@ class IRTModel:
 
     def _load_item_banks(self):
         from adaptivetest.models import QuestionBank
-        self.all_questions = list(QuestionBank.objects.all().values("id", "discrimination", "difficulty", "guessing", "question_type"))
+        self.all_questions = list(QuestionBank.objects.filter(status='active').values("id", "discrimination", "difficulty", "guessing", "question_type"))
 
         self.syn_questions = [q for q in self.all_questions if q["question_type"] == "syn"]
         self.wic_questions = [q for q in self.all_questions if q["question_type"] == "wic"]

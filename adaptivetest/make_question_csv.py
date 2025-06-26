@@ -154,7 +154,10 @@ def main(input_f, output_f, wic = False):
         questions_df = pd.read_csv(questions_file)
         
         # Check for required columns in questions_df
-        required_question_cols = ['word', 'word_id', 'choices', 'correct_answer']
+        if not wic:
+            required_question_cols = ['word', 'word_id', 'choices', 'correct_answer', 'antonym', 'unrelated']
+        else:
+            required_question_cols = ['word', 'word_id', 'choices', 'correct_answer']
         
         # Special handling if we need to find a column with word_id info
         if 'word_id' not in questions_df.columns and 'word' not in questions_df.columns:
@@ -239,8 +242,13 @@ def main(input_f, output_f, wic = False):
     questions_df['text'] = text
     
     # Select only the required columns for the output
-    output_df = questions_df[['text', 'choices', 'correct_answer', 
+    if not wic:
+        output_df = questions_df[['text', 'choices', 'correct_answer', 'antonym', 'unrelated',
                              'discrimination', 'difficulty', 'guessing']]
+    else:
+        output_df = questions_df[['text', 'choices', 'correct_answer', 
+                             'discrimination', 'difficulty', 'guessing']]
+    
     
     # Write the output to a new CSV file
     print(f"Writing output to {output_file}...")
@@ -250,6 +258,6 @@ def main(input_f, output_f, wic = False):
 
 if __name__ == "__main__":
     wic = False
-    input_f = "even_more_synonyms.csv"
-    output_f = "synonym_question_bank.csv"
+    input_f = "synonyms_v4.csv"
+    output_f = "synonym_question_bank_v4.csv"
     main(input_f, output_f, wic)

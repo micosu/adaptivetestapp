@@ -3,33 +3,57 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'adaptivetest/css/adaptivetest_game.css' %}">
+<style>
+  #global-clock {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    z-index: 1000;
+  }
+
+  body.fade-out {
+    transition: opacity 1s ease;
+    opacity: 0;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
+<div id="global-clock">02:20</div>
 <div class="container">
+
+  <img id="times-up-image"
+     src="{% static 'adaptivetest/images/timeup.png' %}"
+     alt="Time's Up!"
+     class="hidden"
+     >
+  <img src="{% static 'adaptivetest/images/track-overlay.gif' %}" alt="Track Animation" class="track-gif">
   <div id="vignette-overlay" class="vignette hidden"></div>
-    <div id="countdown-timer"></div>
-  
+  <div id="countdown-timer"></div>
+
   {% if is_last %}
     <img src="{% static 'adaptivetest/images/finishline.png' %}" class="finishline" alt="Finish Line">
-  {% endif %}   
+  {% endif %}
 
-  <!-- 🟡 Progress Bar -->
   <div id="progress-container">
     <div id="progress-fill"></div>
     <img id="progress-flag" src="{% static 'adaptivetest/images/flag.png' %}" alt="Finish" />
   </div>
 
-  <!-- Roxy + Feedback -->
   <div class="roxy-wrapper" id="roxy-wrapper">
     <img src="{% static 'adaptivetest/images/roxy.png' %}" class="roxy" id="roxy-character">
-    <img id="feedback-image" src="" alt="Feedback" class="feedback-image" />
+    <img id="feedback-image"
+         data-correct="{% static 'adaptivetest/images/correct.png' %}"
+         data-incorrect="{% static 'adaptivetest/images/incorrect.png' %}"
+         alt="Feedback"
+         class="feedback-image" />
   </div>
 
-  <!-- Prompt -->
   <h2 id="prompt">{{ question.text }}</h2>
 
-  <!-- Answer choices -->
   <form id="question-form" method="POST" action="{% url 'question' session_id %}">
     {% csrf_token %}
     {% for label, choice_text in question.choices.items %}
@@ -40,11 +64,9 @@
     {% endfor %}
   </form>
 
-  <!-- Finish line (hidden until timeout) -->
   <img src="{% static 'adaptivetest/images/finishline.png' %}" id="finishline" class="finishline hidden" alt="Finish Line">
 </div>
 
-<!-- 🔊 Sounds -->
 <audio id="correct-sound" src="{% static 'adaptivetest/sounds/correct.m4a' %}"></audio>
 <audio id="incorrect-sound" src="{% static 'adaptivetest/sounds/incorrect.m4a' %}"></audio>
 {% endblock %}
@@ -54,122 +76,186 @@
 
 <script>
   let submitted = false;
+  let globalTimeExpired = false;
+
   const wrapper = document.getElementById('roxy-wrapper');
   const feedback = document.getElementById('feedback-image');
   const vignette = document.getElementById('vignette-overlay');
   const finishLine = document.getElementById('finishline');
   const correctSound = document.getElementById('correct-sound');
   const incorrectSound = document.getElementById('incorrect-sound');
-
-  // Roxy starting position
-  const saved = sessionStorage.getItem('roxyTrack') || 'middle';
-  const positions = { left:'8%', middle:'40%', right:'72%' };
-  sessionStorage.setItem('roxyTrack', saved);
-  wrapper.style.left = positions[saved];
+  const globalClock = document.getElementById('global-clock');
 
   const correctAnswer = "{{ question.correct_answer|escapejs }}";
+  const questionType = "{{ question.type|escapejs }}";
+  const sessionId = document.getElementById('session-data').dataset.sessionId;
 
-  document.querySelectorAll('input[name="answer"]').forEach((radio, idx) => {
-    radio.addEventListener('change', () => {
-      if (submitted) return;
-      submitted = true;
+  const GLOBAL_TIME_LIMIT = 140 * 1000;
+  const globalKey = `quizStartTime_${sessionId}`;
 
-      const trackKey = idx === 0 ? 'left' : idx === 1 ? 'middle' : 'right';
+  let globalStart = parseInt(sessionStorage.getItem(globalKey));
+  if (!globalStart) {
+    globalStart = Date.now();
+    sessionStorage.setItem(globalKey, globalStart);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(`/quiz/set-start-time/${sessionId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ quizStartTime: globalStart })
+    });
+  }
+
+  const questionTimeLimit = 6000;
+  const questionTimer = setTimeout(() => {
+    if (submitted || globalTimeExpired) return;
+    submitted = true;
+
+    const labels = document.querySelectorAll('.choice-label');
+    labels.forEach((label) => {
+      const input = label.querySelector('input');
+      const isSelected = input.checked;
+      const isCorrect = input.value.trim().toUpperCase() === correctAnswer.trim().toUpperCase();
+
+      if (isSelected) {
+        label.classList.add('selected-answer');
+        label.classList.add(isCorrect ? 'selected-correct' : 'selected-incorrect');
+      } else {
+        if (label.classList.contains('left')) {
+          label.classList.add('exit-left');
+        } else if (label.classList.contains('middle')) {
+          label.classList.add('exit-middle');
+        } else if (label.classList.contains('right')) {
+          label.classList.add('exit-right');
+        }
+      }
+    });
+
+    feedback.src = feedback.dataset.incorrect + "?v=miss";
+    incorrectSound.play();
+    vignette.classList.remove('hidden', 'green');
+    vignette.classList.add('show', 'red');
+    feedback.style.display = 'block';
+
+    setTimeout(() => {
+      document.getElementById('question-form').submit();
+    }, 1000);
+  }, questionTimeLimit);
+
+  const positions = { left: '8%', middle: '40%', right: '72%' };
+  const savedTrack = sessionStorage.getItem('roxyTrack') || 'middle';
+  wrapper.style.left = positions[savedTrack];
+
+  const updateGlobalProgress = () => {
+    const now = Date.now();
+    const elapsed = now - globalStart;
+    const pct = Math.min(100, (elapsed / GLOBAL_TIME_LIMIT) * 100);
+    document.getElementById('progress-fill').style.width = `${pct}%`;
+
+    const remaining = Math.max(0, GLOBAL_TIME_LIMIT - elapsed);
+    const mins = String(Math.floor(remaining / 60000)).padStart(2, '0');
+    const secs = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+    globalClock.textContent = `${mins}:${secs}`;
+  };
+
+  function fadeAndRedirect() {
+  // Start fading the body
+  document.body.classList.add('fade-out');
+
+  // Show image shortly after fade begins
+  setTimeout(() => {
+    const image = document.getElementById('times-up-image');
+    if (image) {
+      image.classList.remove('hidden');
+      image.classList.add('show');
+    }
+  }, 300); // image appears just after fade starts
+
+  // Delay redirect so the image stays visible longer (e.g., 2500ms total)
+  setTimeout(() => {
+    window.location.href = `/results/${sessionId}`;
+  }, 2500);
+}
+
+
+console.log("Time's up: showing image and fading...");
+
+  const submitWithDelay = () => {
+    if (globalTimeExpired) return;
+    setTimeout(() => {
+      document.getElementById('question-form').submit();
+      vignette.classList.remove('show');
+      setTimeout(() => vignette.classList.add('hidden'), 400);
+    }, 600);
+  };
+
+  const handleSubmit = (selected, idx) => {
+    if (submitted || globalTimeExpired) return;
+    submitted = true;
+    clearTimeout(questionTimer);
+
+    const labels = document.querySelectorAll('.choice-label');
+    labels.forEach((label, i) => {
+      const input = label.querySelector('input');
+      const isSelected = i === idx;
+      const isCorrect = input.value.trim().toUpperCase() === correctAnswer.trim().toUpperCase();
+
+      if (isSelected) {
+        label.classList.add('selected-answer');
+        label.classList.add(isCorrect ? 'selected-correct' : 'selected-incorrect');
+      } else {
+        if (label.classList.contains('left')) {
+          label.classList.add('exit-left');
+        } else if (label.classList.contains('middle')) {
+          label.classList.add('exit-middle');
+        } else if (label.classList.contains('right')) {
+          label.classList.add('exit-right');
+        }
+      }
+    });
+
+    const trackKey = idx === 0 ? 'left' : idx === 1 ? 'middle' : 'right';
+    if (trackKey !== savedTrack) {
       wrapper.classList.add('no-bounce');
       wrapper.style.left = positions[trackKey];
       sessionStorage.setItem('roxyTrack', trackKey);
       setTimeout(() => wrapper.classList.remove('no-bounce'), 800);
+    }
 
-      const selected = radio.value.trim().toUpperCase();
-      const correct = correctAnswer.trim().toUpperCase();
+    const selectedClean = selected.trim().toUpperCase();
+    const correctClean = correctAnswer.trim().toUpperCase();
+    const isCorrect = selectedClean === correctClean;
 
-      if (selected === correct) {
-        feedback.src = '{% static "adaptivetest/images/correct.png" %}?v=4';
-        correctSound.play();
-        vignette.classList.remove('hidden', 'red');
-        vignette.classList.add('show', 'green');
-      } else {
-        feedback.src = '{% static "adaptivetest/images/incorrect.png" %}?v=4';
-        incorrectSound.play();
-        vignette.classList.remove('hidden', 'green');
-        vignette.classList.add('show', 'red');
-      }
+    feedback.src = isCorrect
+      ? feedback.dataset.correct + "?v=4"
+      : feedback.dataset.incorrect + "?v=4";
+    (isCorrect ? correctSound : incorrectSound).play();
 
-      feedback.style.display = 'block';
+    vignette.classList.remove('hidden', isCorrect ? 'red' : 'green');
+    vignette.classList.add('show', isCorrect ? 'green' : 'red');
+    feedback.style.display = 'block';
 
-      setTimeout(() => {
-        feedback.style.display = 'none';
-        document.getElementById('question-form').submit();
-        vignette.classList.remove('show');
-        setTimeout(() => vignette.classList.add('hidden'), 400);
-      }, 1000);
-    });
+    submitWithDelay();
+  };
+
+  document.querySelectorAll('input[name="answer"]').forEach((radio, idx) => {
+    radio.addEventListener('change', () => handleSubmit(radio.value, idx));
   });
 
-  // Timer + Finish Logic
-  const TOTAL = 2 * 60 * 1000; // 2 minutes
-  const sessionId = document.getElementById('session-data').dataset.sessionId;
-  const storageKey = `quizStartTime_${sessionId}`;
-  let start = parseInt(sessionStorage.getItem(storageKey));
-  // const start = parseInt(sessionStorage.getItem('quizStartTime')) || Date.now();
-  if (!start) {
-    start = Date.now();
-    console.log('Setting new start time:', start);
-    sessionStorage.setItem(storageKey, start);
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    
-    // Send to Django to save in session
-    fetch(`/quiz/set-start-time/${sessionId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': csrfToken,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            quizStartTime: start
-        })
-    });
-  }
-  // sessionStorage.setItem('quizStartTime', start);
-
-  function update() {
-    const elapsed = Date.now() - start;
-    console.log('Update called, start:', start, 'elapsed:', Date.now() - start);
-    document.getElementById('progress-fill').style.width = `${Math.min(100, (elapsed / TOTAL) * 100)}%`;
-
-    if (elapsed >= TOTAL) {
-      clearInterval(timer);
-      sessionStorage.removeItem('quizStartTime');
-
-      // Hide prompt & answers
-      document.querySelectorAll('#prompt, .choice-label').forEach(el => el.remove());
-
-      // Roxy animation setup
-      finishLine.classList.remove('hidden');
-
-      const rect = wrapper.getBoundingClientRect();
-      const fin = finishLine.getBoundingClientRect();
-
-      // Calculate currentLeft and currentBottom in percentage relative to the container
-      const container = document.querySelector('.container');
-      const containerRect = container.getBoundingClientRect();
-
-      const currentLeft = ((rect.left - containerRect.left + rect.width / 2) / containerRect.width) * 100 + '%';
-      const currentBottom = ((containerRect.bottom - rect.bottom) / containerRect.height) * 100 + '%';
-
-      wrapper.style.setProperty('--current-left', currentLeft);
-      wrapper.style.setProperty('--current-bottom', currentBottom);
-
-      wrapper.classList.add('run-and-shrink');
-
-      wrapper.addEventListener('animationend', () => {
-        window.location.href = `/results/${document.getElementById('session-data').dataset.sessionId}`;
-      }, { once: true });
-
+  const globalUpdater = setInterval(() => {
+    const elapsed = Date.now() - globalStart;
+    updateGlobalProgress();
+    if (elapsed >= GLOBAL_TIME_LIMIT && !globalTimeExpired) {
+      globalTimeExpired = true;
+      clearInterval(globalUpdater);
+      sessionStorage.removeItem(globalKey);
+      console.log("[GAME END] Time's up at", elapsed, "ms");
+      fadeAndRedirect();
     }
-  }
+  }, 2500);
 
-  const timer = setInterval(update, 1000);
-  update();
+  updateGlobalProgress();
 </script>
 {% endblock %}

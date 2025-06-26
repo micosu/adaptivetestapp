@@ -21,6 +21,7 @@ urlpatterns = [
     path('quiz/set-start-time/<int:session_id>/', views.set_start_time, name="start_time"),
     path('countdown/<int:session_id>/', views.game_countdown, name='game_countdown'),
     path('question/<int:session_id>/', views.question_view, name='question'),
+    path('check-session-status/<int:session_id>/', views.check_session_status, name="session-status"),
     path('results/<int:session_id>/', views.test_results, name='results'),
 
     # Stats

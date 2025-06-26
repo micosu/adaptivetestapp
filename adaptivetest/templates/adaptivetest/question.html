@@ -3,49 +3,69 @@
 
 {% block styles %}
 <link rel="stylesheet" href="{% static 'adaptivetest/css/adaptivetest_game.css' %}">
+<style>
+  #global-clock {
+    position: fixed;
+    top: 10px;
+    right: 20px;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #333;
+    z-index: 1000;
+  }
+
+  body.fade-out {
+    transition: opacity 1s ease;
+    opacity: 0;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
+<div id="global-clock">02:20</div>
 <div class="container">
-  <div id="vignette-overlay" class="vignette hidden"></div>
-    <div id="countdown-timer"></div>
-  
-  {% if is_last %}
-    <img src="{% static 'adaptivetest/images/finishline.png' %}" class="finishline" alt="Finish Line">
-  {% endif %}   
 
-  <!-- 🟡 Progress Bar -->
+  <img id="times-up-image"
+     src="{% static 'adaptivetest/images/timeup.png' %}"
+     alt="Time's Up!"
+     class="hidden"
+     >
+  <img src="{% static 'adaptivetest/images/track-overlay.gif' %}" alt="Track Animation" class="track-gif">
+  <div id="vignette-overlay" class="vignette hidden"></div>
+  <div id="countdown-timer"></div>
+
   <div id="progress-container">
     <div id="progress-fill"></div>
     <img id="progress-flag" src="{% static 'adaptivetest/images/flag.png' %}" alt="Finish" />
   </div>
 
-  <!-- Roxy + Feedback -->
   <div class="roxy-wrapper" id="roxy-wrapper">
     <img src="{% static 'adaptivetest/images/roxy.png' %}" class="roxy" id="roxy-character">
-    <img id="feedback-image" src="" alt="Feedback" class="feedback-image" />
+    <img id="feedback-image"
+         data-correct="{% static 'adaptivetest/images/correct.png' %}"
+         data-incorrect="{% static 'adaptivetest/images/incorrect.png' %}"
+         alt="Feedback"
+         class="feedback-image" />
   </div>
 
-  <!-- Prompt -->
   <h2 id="prompt">{{ question.text }}</h2>
 
-  <!-- Answer choices -->
   <form id="question-form" method="POST" action="{% url 'question' session_id %}">
     {% csrf_token %}
+    <input type="hidden" name="start_time" id="start_time">
     <input type="hidden" name="submit_time" id="submit_time">
+    <input type="hidden" name="time_limit" id="time_limit">
     {% for label, choice_text in question.choices.items %}
       <label class="choice-label {% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}">
-        <input type="radio" name="answer" value="{{ label }}" required>
+        <input id="form_answer" type="radio" name="answer" value="{{ label }}" required>
         {{ choice_text }}
       </label>
     {% endfor %}
   </form>
 
-  <!-- Finish line (hidden until timeout) -->
   <img src="{% static 'adaptivetest/images/finishline.png' %}" id="finishline" class="finishline hidden" alt="Finish Line">
 </div>
 
-<!-- 🔊 Sounds -->
 <audio id="correct-sound" src="{% static 'adaptivetest/sounds/correct.m4a' %}"></audio>
 <audio id="incorrect-sound" src="{% static 'adaptivetest/sounds/incorrect.m4a' %}"></audio>
 {% endblock %}
@@ -55,128 +75,276 @@
 
 <script>
   let submitted = false;
+  let globalTimeExpired = false;
+
   const wrapper = document.getElementById('roxy-wrapper');
   const feedback = document.getElementById('feedback-image');
   const vignette = document.getElementById('vignette-overlay');
   const finishLine = document.getElementById('finishline');
   const correctSound = document.getElementById('correct-sound');
   const incorrectSound = document.getElementById('incorrect-sound');
-
-  // Roxy starting position
-  const saved = sessionStorage.getItem('roxyTrack') || 'middle';
-  const positions = { left:'8%', middle:'40%', right:'72%' };
-  sessionStorage.setItem('roxyTrack', saved);
-  wrapper.style.left = positions[saved];
+  const globalClock = document.getElementById('global-clock');
 
   const correctAnswer = "{{ question.correct_answer|escapejs }}";
+  const questionType = "{{ question.type|escapejs }}";
+  const sessionId = document.getElementById('session-data').dataset.sessionId;
 
-  document.querySelectorAll('input[name="answer"]').forEach((radio, idx) => {
-    radio.addEventListener('change', () => {
-      if (submitted) return;
-      submitted = true;
+  const GLOBAL_TIME_LIMIT = 5 * 1000;
+  const globalKey = `quizStartTime_${sessionId}`;
 
-      const trackKey = idx === 0 ? 'left' : idx === 1 ? 'middle' : 'right';
+  let globalStart = parseInt(sessionStorage.getItem(globalKey));
+  if (!globalStart) {
+    globalStart = Date.now();
+    sessionStorage.setItem(globalKey, globalStart);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    fetch(`/quiz/set-start-time/${sessionId}/`, {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': csrfToken,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ quizStartTime: globalStart })
+    });
+  }
+
+  // Centralized AJAX form submission function
+  const submitFormAjax = () => {
+    console.log("submitFormAjax called - start");
+    
+    if (globalTimeExpired) {
+      console.log("submitFormAjax - early return due to globalTimeExpired");
+      return;
+    }
+    
+    console.log("submitFormAjax - proceeding");
+    
+    const form = document.getElementById('question-form');
+    const formData = new FormData(form);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Debug: log what we're sending
+    console.log("Form action:", form.action);
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': csrfToken
+      }
+    })
+    .then(response => {
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+      
+      // Check if response is actually JSON
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        return response.json();
+      } else {
+        console.log("Response is not JSON, falling back to form submission");
+        throw new Error("Non-JSON response");
+      }
+    })
+    .then(data => {
+      console.log("JSON response:", data);
+      if (data.expired) {
+        // Session expired - trigger smooth transition
+        fadeAndRedirect();
+      } else if (data.redirect_url) {
+        // Normal progression to next question
+        window.location.href = data.redirect_url;
+      } else {
+        // Fallback - reload page
+        window.location.reload();
+      }
+    })
+    .catch(error => {
+      console.error('Submission error:', error);
+      console.log('Falling back to normal form submission');
+      // Fallback to normal form submission
+      form.submit();
+    });
+  };
+
+  const questionTimeLimit = 5000;
+  const questionTimer = setTimeout(() => {
+    if (submitted || globalTimeExpired) return;
+    submitted = true;
+
+    const labels = document.querySelectorAll('.choice-label');
+    labels.forEach((label) => {
+      const input = label.querySelector('input');
+      const isSelected = input.checked;
+      const isCorrect = input.value.trim().toUpperCase() === correctAnswer.trim().toUpperCase();
+
+      if (isSelected) {
+        label.classList.add('selected-answer');
+        label.classList.add(isCorrect ? 'selected-correct' : 'selected-incorrect');
+      } else {
+        if (label.classList.contains('left')) {
+          label.classList.add('exit-left');
+        } else if (label.classList.contains('middle')) {
+          label.classList.add('exit-middle');
+        } else if (label.classList.contains('right')) {
+          label.classList.add('exit-right');
+        }
+      }
+    });
+
+    feedback.src = feedback.dataset.incorrect + "?v=miss";
+    incorrectSound.play();
+    vignette.classList.remove('hidden', 'green');
+    vignette.classList.add('show', 'red');
+    feedback.style.display = 'block';
+
+    setTimeout(() => {
+      document.getElementById('submit_time').value = Date.now();
+      document.getElementById('time_limit').value = GLOBAL_TIME_LIMIT;
+      console.log("Question timeout - calling submitFormAjax");
+      submitFormAjax(); // Use AJAX instead of direct submit
+    }, 1000);
+  }, questionTimeLimit);
+
+  const positions = { left: '8%', middle: '40%', right: '72%' };
+  const savedTrack = sessionStorage.getItem('roxyTrack') || 'middle';
+  wrapper.style.left = positions[savedTrack];
+
+  const updateGlobalProgress = () => {
+    const now = Date.now();
+    const elapsed = now - globalStart;
+    const pct = Math.min(100, (elapsed / GLOBAL_TIME_LIMIT) * 100);
+    document.getElementById('progress-fill').style.width = `${pct}%`;
+
+    const remaining = Math.max(0, GLOBAL_TIME_LIMIT - elapsed);
+    const mins = String(Math.floor(remaining / 60000)).padStart(2, '0');
+    const secs = String(Math.floor((remaining % 60000) / 1000)).padStart(2, '0');
+    globalClock.textContent = `${mins}:${secs}`;
+  };
+
+  function fadeAndRedirect() {
+    // Prevent any further submissions
+    submitted = true;
+    globalTimeExpired = true;
+    
+    // Start fading the body
+    
+    const image = document.getElementById('times-up-image');
+      if (image) {
+        image.classList.remove('hidden');
+        image.classList.add('show');
+      }
+
+    // Show image shortly after fade begins
+    setTimeout(() => {
+      document.body.classList.add('fade-out');
+    }, 1000);
+
+    // Delay redirect so the image stays visible longer
+    setTimeout(() => {
+      window.location.href = `/results/${sessionId}`;
+    }, 2500);
+  }
+
+  const submitWithDelay = () => {
+    if (globalTimeExpired) return;
+    setTimeout(() => {
+      console.log("submitWithDelay - calling submitFormAjax");
+      submitFormAjax(); // Use AJAX instead of direct submit
+      vignette.classList.remove('show');
+      setTimeout(() => vignette.classList.add('hidden'), 400);
+    }, 600);
+  };
+
+  const handleSubmit = (selected, idx) => {
+    if (submitted || globalTimeExpired) return;
+    submitted = true;
+    clearTimeout(questionTimer);
+
+    const labels = document.querySelectorAll('.choice-label');
+    labels.forEach((label, i) => {
+      const input = label.querySelector('input');
+      const isSelected = i === idx;
+      const isCorrect = input.value.trim().toUpperCase() === correctAnswer.trim().toUpperCase();
+
+      if (isSelected) {
+        label.classList.add('selected-answer');
+        label.classList.add(isCorrect ? 'selected-correct' : 'selected-incorrect');
+      } else {
+        if (label.classList.contains('left')) {
+          label.classList.add('exit-left');
+        } else if (label.classList.contains('middle')) {
+          label.classList.add('exit-middle');
+        } else if (label.classList.contains('right')) {
+          label.classList.add('exit-right');
+        }
+      }
+    });
+
+    const trackKey = idx === 0 ? 'left' : idx === 1 ? 'middle' : 'right';
+    if (trackKey !== savedTrack) {
       wrapper.classList.add('no-bounce');
       wrapper.style.left = positions[trackKey];
       sessionStorage.setItem('roxyTrack', trackKey);
       setTimeout(() => wrapper.classList.remove('no-bounce'), 800);
+    }
 
-      const selected = radio.value.trim().toUpperCase();
-      const correct = correctAnswer.trim().toUpperCase();
+    const selectedClean = selected.trim().toUpperCase();
+    const correctClean = correctAnswer.trim().toUpperCase();
+    const isCorrect = selectedClean === correctClean;
 
-      if (selected === correct) {
-        feedback.src = '{% static "adaptivetest/images/correct.png" %}?v=4';
-        correctSound.play();
-        vignette.classList.remove('hidden', 'red');
-        vignette.classList.add('show', 'green');
-      } else {
-        feedback.src = '{% static "adaptivetest/images/incorrect.png" %}?v=4';
-        incorrectSound.play();
-        vignette.classList.remove('hidden', 'green');
-        vignette.classList.add('show', 'red');
-      }
+    feedback.src = isCorrect
+      ? feedback.dataset.correct + "?v=4"
+      : feedback.dataset.incorrect + "?v=4";
+    (isCorrect ? correctSound : incorrectSound).play();
 
-      feedback.style.display = 'block';
+    vignette.classList.remove('hidden', isCorrect ? 'red' : 'green');
+    vignette.classList.add('show', isCorrect ? 'green' : 'red');
+    feedback.style.display = 'block';
 
-      setTimeout(() => {
-        feedback.style.display = 'none';
-        document.getElementById('question-form').submit();
-        vignette.classList.remove('show');
-        setTimeout(() => vignette.classList.add('hidden'), 400);
-      }, 1000);
-    });
+    submitWithDelay();
+  };
+
+  document.querySelectorAll('input[name="answer"]').forEach((radio, idx) => {
+    radio.addEventListener('change', () => handleSubmit(radio.value, idx));
   });
 
-  // Timer + Finish Logic
-  const TOTAL = 2 * 60 * 1000; // 2 minutes
-  const sessionId = document.getElementById('session-data').dataset.sessionId;
-  const storageKey = `quizStartTime_${sessionId}`;
-  let start = parseInt(sessionStorage.getItem(storageKey));
-  // const start = parseInt(sessionStorage.getItem('quizStartTime')) || Date.now();
-  if (!start) {
-    start = Date.now();
-    console.log('Setting new start time:', start);
-    sessionStorage.setItem(storageKey, start);
-    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  // Simplified timers - remove the duplicate globalUpdater
+  const globalUpdater = setInterval(() => {
+    updateGlobalProgress();
+  }, 1000); // Update more frequently for smoother progress
+
+  // Session checker for backend-controlled timing
+  const sessionChecker = setInterval(() => {
+    if (submitted || globalTimeExpired) return; // Don't check if already handling submission
     
-    // Send to Django to save in session
-    fetch(`/quiz/set-start-time/${sessionId}/`, {
-        method: 'POST',
-        headers: {
-            'X-CSRFToken': csrfToken,
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            quizStartTime: start
-        })
-    });
-  }
-  // sessionStorage.setItem('quizStartTime', start);
+    fetch(`/check-session-status/${sessionId}/?time_limit=${GLOBAL_TIME_LIMIT}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.expired) {
+          clearInterval(sessionChecker);
+          clearInterval(globalUpdater);
+          fadeAndRedirect();
+        }
+      })
+      .catch(error => {
+        console.error('Session check error:', error);
+      });
+  }, 1000);
 
-  function update() {
-    const elapsed = Date.now() - start;
-    console.log('Update called, start:', start, 'elapsed:', Date.now() - start);
-    document.getElementById('progress-fill').style.width = `${Math.min(100, (elapsed / TOTAL) * 100)}%`;
+  updateGlobalProgress();
+  document.getElementById('start_time').value = Date.now();
 
-    if (elapsed >= TOTAL) {
-      clearInterval(timer);
-      sessionStorage.removeItem('quizStartTime');
-
-      // Hide prompt & answers
-      document.querySelectorAll('#prompt, .choice-label').forEach(el => el.remove());
-
-      // Roxy animation setup
-      finishLine.classList.remove('hidden');
-
-      const rect = wrapper.getBoundingClientRect();
-      const fin = finishLine.getBoundingClientRect();
-
-      // Calculate currentLeft and currentBottom in percentage relative to the container
-      const container = document.querySelector('.container');
-      const containerRect = container.getBoundingClientRect();
-
-      const currentLeft = ((rect.left - containerRect.left + rect.width / 2) / containerRect.width) * 100 + '%';
-      const currentBottom = ((containerRect.bottom - rect.bottom) / containerRect.height) * 100 + '%';
-
-      wrapper.style.setProperty('--current-left', currentLeft);
-      wrapper.style.setProperty('--current-bottom', currentBottom);
-
-      wrapper.classList.add('run-and-shrink');
-
-      wrapper.addEventListener('animationend', () => {
-        window.location.href = `/results/${document.getElementById('session-data').dataset.sessionId}`;
-      }, { once: true });
-
-    }
-  }
-
-  const timer = setInterval(update, 1000);
-  update();
-
+  // Click handler for setting timestamps (keep this for timing accuracy)
   document.getElementById('question-form').addEventListener('click', function(e) {
-    // Capture timestamp in milliseconds since epoch
-    document.getElementById('submit_time').value = Date.now();
-    console.log("Form Clicked!!")
-});
+    if (e.target.type === 'radio') {
+      document.getElementById('time_limit').value = GLOBAL_TIME_LIMIT;
+      document.getElementById('submit_time').value = Date.now();
+      console.log("Form Clicked!!");
+    }
+  });
 </script>
 {% endblock %}

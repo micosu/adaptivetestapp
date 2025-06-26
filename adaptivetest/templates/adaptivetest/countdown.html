@@ -3,44 +3,81 @@
 
 {% block styles %}
 <style>
+  /* General layout settings */
   body, html {
     height: 100%;
     margin: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    background: #000;
+    background: #ffffff;
   }
 
+  /* Countdown container */
   #countdown {
     width: 812px;
     height: 375px;
     margin: auto;
     background:
       linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
-      url("{% static 'adaptivetest/images/track-background.png' %}") no-repeat center/cover;
+      url("{% static 'adaptivetest/images/Countdown.png' %}") no-repeat center/cover;
     position: relative;
     display: flex;
     justify-content: center;
     align-items: center;
     border-radius: 20px;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    opacity: 1;
+    transition: opacity 1s ease;
   }
 
+  /* Common countdown image style */
   #countdown img {
     width: 100px;
     animation: pop-scale 0.8s ease-in-out;
   }
 
+  /* "GO" image styling */
+  #countdown img.go-image {
+    width: 180px;
+    filter: drop-shadow(0 0 20px #00ff00); /* Green glow */
+    animation: go-bounce 1s ease-in-out;
+  }
+
+  /* Pop scale animation for numbers */
   @keyframes pop-scale {
     0% { transform: scale(0); opacity: 0; }
     50% { transform: scale(1.3); opacity: 1; }
     100% { transform: scale(1); }
   }
+
+  /* Bounce effect for "GO" */
+  @keyframes go-bounce {
+    0%   { transform: scale(0.8); opacity: 0.8; }
+    50%  { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+
+  /* Hide base header/navigation */
+  header, .navbar, .site-header {
+    display: none !important;
+  }
+
+  /* Fade out animation for smoother exit */
+  .fade-out {
+    opacity: 0;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Countdown sound -->
+<audio id="countdown-sound">
+  <source src="{% static 'adaptivetest/sounds/countdown.m4a' %}" type="audio/mp4">
+  Your browser does not support the audio element.
+</audio>
+
+<!-- Countdown visual container -->
 <div id="countdown">
   <img id="countdown-image" src="" alt="Countdown" style="display: none;">
 </div>
@@ -51,24 +88,50 @@
   const countdownImages = [
     "{% static 'adaptivetest/images/Number3.png' %}",
     "{% static 'adaptivetest/images/Number2.png' %}",
-    "{% static 'adaptivetest/images/Number1.png' %}"
+    "{% static 'adaptivetest/images/Number1.png' %}",
+    "{% static 'adaptivetest/images/Go.png' %}"
   ];
 
   const redirectURL = "{{ redirect_url }}";
   const countdownImage = document.getElementById("countdown-image");
+  const countdownContainer = document.getElementById("countdown");
   let index = 0;
 
+  // Play audio after 1 second (in case browser blocks autoplay)
+  window.addEventListener('DOMContentLoaded', () => {
+    const audio = document.getElementById('countdown-sound');
+    setTimeout(() => {
+      if (audio) {
+        audio.play().catch(err => {
+          console.warn('Autoplay might be blocked by browser:', err);
+        });
+      }
+    }, 1000);
+  });
+
+  // Show countdown images one by one
   const interval = setInterval(() => {
     if (index < countdownImages.length) {
       countdownImage.style.display = 'block';
+      countdownImage.classList.remove('go-image'); // Reset class
       countdownImage.src = countdownImages[index];
+
+      if (index === countdownImages.length - 1) {
+        countdownImage.classList.add('go-image'); // Apply special style for GO
+      }
+
       countdownImage.style.animation = 'none';
-      void countdownImage.offsetWidth; // force reflow to restart animation
+      void countdownImage.offsetWidth; // Reflow to restart animation
       countdownImage.style.animation = 'pop-scale 0.8s ease-in-out';
+
       index++;
     } else {
       clearInterval(interval);
-      window.location.href = redirectURL;
+      // Add fade-out effect before redirecting
+      countdownContainer.classList.add('fade-out');
+      setTimeout(() => {
+        window.location.href = redirectURL;
+      }, 1000); // match transition duration
     }
   }, 1000);
 </script>

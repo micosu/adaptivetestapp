@@ -8,6 +8,7 @@ from .forms import TestSessionForm
 from .irt_logic import IRTModel
 import statistics
 import json
+
 # ------------------------
 # Static pages (Home, Start)
 # ------------------------
@@ -18,37 +19,28 @@ def home(request):
 
 def start_test(request):
     if request.method == "GET":
-        context = {
+        return render(request, 'adaptivetest/test.html', {
             'form': TestSessionForm(),
             'message': "Please answer the following questions."
-        }
-        return render(request, 'adaptivetest/test.html', context)
+        })
 
     form = TestSessionForm(request.POST)
     if not form.is_valid():
-        error_messages = form.errors.as_text()
-        context = {'form': form, 'message': f'Invalid response: {error_messages}'}
-        return render(request, 'test.html', context)
+        return render(request, 'test.html', {
+            'form': form,
+            'message': f"Invalid response: {form.errors.as_text()}"
+        })
 
-    age = form.cleaned_data['age']
-    grade = form.cleaned_data['grade']
-    hours = form.cleaned_data['hours']
-    language = form.cleaned_data['language']
-    lexile = form.cleaned_data.get('lexile')
-
-    newTestSession = TestSession(age=age, grade=grade, hours=hours, language=language, lexile=lexile)
-    newTestSession.save()
+    data = form.cleaned_data
+    session = TestSession(**data)
+    session.save()
 
     model = IRTModel()
-    starting_question = model.get_next_question(newTestSession)
-    newTestSession.current_question = starting_question
-    newTestSession.save()
+    first_question = model.get_next_question(session)
+    session.current_question = first_question
+    session.save()
 
-    print("CURRENT ID", newTestSession.id)
-    print("Started successfully.  First question: ", starting_question)
-
-    # Redirect to intro slide sequence
-    return redirect('brick1', session_id=newTestSession.id)
+    return redirect('brick1', session_id=session.id)
 
 
 # ------------------------
@@ -91,72 +83,101 @@ def get_ready(request, session_id):
 # ------------------------
 
 def game_countdown(request, session_id):
-    redirect_url = reverse('question', args=[session_id])
     return render(request, 'adaptivetest/countdown.html', {
-        'redirect_url': redirect_url
+        'redirect_url': reverse('question', args=[session_id])
     })
 
 def set_start_time(request, session_id):
     if request.method == 'POST':
         session = TestSession.objects.get(id=session_id)
         data = json.loads(request.body)
-        start_time = data['quizStartTime']
-        session.start_time = timezone.datetime.fromtimestamp(start_time / 1000, tz=timezone.get_current_timezone())
-        session.save()
-        print("Session Start time: ", session.start_time)
-        return JsonResponse({'status': 'success'})
+        start_time_ms = data.get('quizStartTime')
+        if start_time_ms:
+            session.start_time = timezone.datetime.fromtimestamp(
+                start_time_ms / 1000, tz=timezone.get_current_timezone()
+            )
+            session.save()
+            return JsonResponse({'status': 'success'})
     return JsonResponse({'status': 'error'})
 
 
 def question_view(request, session_id):
-    """Display current question and handle responses"""
     session = TestSession.objects.get(id=session_id)
 
     if request.method == 'POST':
         question_id = session.current_question.id
-        print("QUESTION ID", question_id)
         user_answer = request.POST.get('answer')
+        time_limit = int(request.POST.get('time_limit'))
 
+        # Check remaining time
         if session.start_time:
-            elapsed_ms = (timezone.now() - session.start_time).total_seconds() * 1000
-            time_remaining = (2 * 60 * 1000) - elapsed_ms
+            elapsed = (timezone.now() - session.start_time).total_seconds() * 1000
+            time_remaining = time_limit - elapsed
         else:
-            time_remaining = 2 * 60 * 1000  # Full time if no start time yet
+            time_remaining = time_limit
 
+        # Handle timing and answers as before...
         model = IRTModel()
         question = QuestionBank.objects.get(id=question_id)
         is_correct = (user_answer == question.correct_answer)
+        
+        # Your existing timestamp handling...
+        start_time = int(request.POST.get('start_time'))
+        start_time = timezone.datetime.fromtimestamp(start_time / 1000, tz=timezone.get_current_timezone())
         submit_time = int(request.POST.get('submit_time'))
         submit_time = timezone.datetime.fromtimestamp(submit_time / 1000, tz=timezone.get_current_timezone())
-        print("Question Submit Time: ", submit_time)
+        question_duration_seconds = (submit_time - start_time).total_seconds()
 
-        session.add_question(question_id, is_correct, user_answer, submit_time)
-        model.update_theta(session)
-
-        next_question = model.get_next_question(session)
-
-        if next_question and not model.stop_test(session, time_remaining):
-            session.current_question = next_question
-            session.save()
-
-            return render(request, 'question.html', {
-                'session_id': session.id,
-                'question': next_question,
-            })
-        else:
+        if time_remaining <= 0:
             session.end_time = timezone.now()
             session.save()
-            return redirect('results', session_id=session.id)
-            
+            # Return JSON for AJAX
+            return JsonResponse({
+                'expired': True, 
+                'redirect_url': f'/results/{session.id}'
+            })
+        
+        session.add_question(question_id, is_correct, user_answer, question_duration_seconds)
+        model.update_theta(session)
+
+        next_q = model.get_next_question(session)
+        if next_q:
+            session.current_question = next_q
+            session.save()
+            # Return JSON with next question URL
+            return JsonResponse({
+                'expired': False,
+                'redirect_url': f'/question/{session.id}/'
+            })
+        else:
+            # No more questions
+            session.end_time = timezone.now()
+            session.save()
+            return JsonResponse({
+                'expired': False,
+                'redirect_url': f'/results/{session.id}'
+            })
 
     # GET request
-    model = IRTModel()
-
     return render(request, 'question.html', {
         'session_id': session.id,
         'question': session.current_question,
     })
 
+def check_session_status(request, session_id):
+    session = TestSession.objects.get(id=session_id)
+    time_limit = int(request.GET.get('time_limit'))
+    if session.start_time:
+        elapsed = (timezone.now() - session.start_time).total_seconds() * 1000
+        time_remaining = time_limit - elapsed  # Your time limit in ms
+        is_expired = time_remaining <= 0
+    else:
+        is_expired = False
+    
+    return JsonResponse({
+        'expired': is_expired,
+        'redirect_url': f'/results/{session.id}' if is_expired else None
+    })
 
 # ------------------------
 # Results

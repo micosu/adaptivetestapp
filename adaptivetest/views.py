@@ -128,37 +128,55 @@ def question_view(request, session_id):
         submit_time = timezone.datetime.fromtimestamp(submit_time / 1000, tz=timezone.get_current_timezone())
         question_duration_seconds = (submit_time - start_time).total_seconds()
 
+        # Check if session expired
         if time_remaining <= 0:
             session.end_time = timezone.now()
             session.save()
-            # Return JSON for AJAX
             return JsonResponse({
                 'expired': True, 
                 'redirect_url': f'/results/{session.id}'
             })
         
+        # Process the answer
         session.add_question(question_id, is_correct, user_answer, question_duration_seconds)
         model.update_theta(session)
 
+        # Get next question
         next_q = model.get_next_question(session)
+        
+        # Check if this is an AJAX request
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
         if next_q:
             session.current_question = next_q
             session.save()
-            # Return JSON with next question URL
-            return JsonResponse({
-                'expired': False,
-                'redirect_url': f'/question/{session.id}/'
-            })
+            
+            if is_ajax:
+                # Return JSON with next question data for AJAX update
+                return JsonResponse({
+                    'expired': False,
+                    'question_data': {
+                        'text': next_q.text,
+                        'choices': next_q.choices,
+                        'correct_answer': next_q.correct_answer,
+                        'type': next_q.question_type,
+                        'id': next_q.id
+                    }
+                })
+            else:
+                # Regular form submission - redirect to same page
+                return redirect('question', session_id=session.id)
         else:
-            # No more questions
+            # No more questions - quiz is complete
             session.end_time = timezone.now()
             session.save()
+            
             return JsonResponse({
                 'expired': False,
                 'redirect_url': f'/results/{session.id}'
             })
 
-    # GET request
+    # GET request - render the initial question page
     return render(request, 'question.html', {
         'session_id': session.id,
         'question': session.current_question,

@@ -258,5 +258,11 @@ console.log("Time's up: showing image and fading...");
   }, 2500);
 
   updateGlobalProgress();
+  // For submit times
+  document.getElementById('question-form').addEventListener('click', function(e) {
+    // Capture timestamp in milliseconds since epoch
+    document.getElementById('submit_time').value = Date.now();
+    console.log("Form Clicked!!")
+  });
 </script>
 {% endblock %}

@@ -131,6 +131,7 @@ USE_I18N = True
 
 USE_TZ = True
 
+BLOCKED_IPS = ['92.112.236.232', '138.197.157.37']
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/

@@ -89,7 +89,7 @@
   const questionType = "{{ question.type|escapejs }}";
   const sessionId = document.getElementById('session-data').dataset.sessionId;
 
-  const GLOBAL_TIME_LIMIT = 5 * 1000;
+  const GLOBAL_TIME_LIMIT = 140 * 1000;
   const globalKey = `quizStartTime_${sessionId}`;
 
   let globalStart = parseInt(sessionStorage.getItem(globalKey));

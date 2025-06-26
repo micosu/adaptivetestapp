@@ -4,7 +4,7 @@ import csv
 import json
 from adaptivetest.models import QuestionBank
 
-with open('synonym_question_bank.csv', newline='', encoding='utf-8') as csvfile:
+with open('synonym_question_bank_v4.csv', newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         try:
@@ -12,6 +12,8 @@ with open('synonym_question_bank.csv', newline='', encoding='utf-8') as csvfile:
                 text=row['text'],
                 choices=json.loads(row['choices']),  # Convert string to dict
                 correct_answer=row['correct_answer'],
+                antonym = row['antonym'],
+                unrelated = row['unrelated'],
                 discrimination=float(row['discrimination']),
                 difficulty=float(row['difficulty']),
                 guessing=float(row['guessing']),
@@ -25,7 +27,7 @@ with open('synonym_question_bank.csv', newline='', encoding='utf-8') as csvfile:
 
 print("Success importing synonym questions")
 
-with open('wic_question_bank.csv', newline='', encoding='utf-8') as csvfile:
+with open('wic_question_bank_v4.csv', newline='', encoding='utf-8') as csvfile:
     reader = csv.DictReader(csvfile)
     for row in reader:
         try:

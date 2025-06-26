@@ -11,18 +11,22 @@ class QuestionBank(models.Model):
     text = models.TextField()
     choices = models.JSONField()  # stores options as a dict
     correct_answer = models.CharField(max_length=2)  # 'A', 'B', 'C', etc.
-    # antonym = models.CharField(max_length=2, null=True, blank=True)
-    # unrelated = models.CharField(max_length=2, null=True, blank=True)
+    antonym = models.CharField(max_length=2, null=True, blank=True)
+    unrelated = models.CharField(max_length=2, null=True, blank=True)
     QUESTION_TYPES = (('syn', 'Synonym'), ('wic', 'Word In Context'))
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
-
+    status = models.CharField(max_length=10, choices=[
+        ('active', 'Active'),
+        ('retired', 'Retired'),
+    ], default='active')
+    version = models.CharField(max_length=20, blank=True, default='v3-6/26/2025') # vNum-Date
     # IRT parameters
     discrimination = models.FloatField(default=1.0)  # a parameter
     difficulty = models.FloatField()  # b parameter
     guessing = models.FloatField(default=0.0)  # c parameter
     
     def __str__(self):
-        return self.text[:50]
+        return "Question: " + self.text[:10] + "| Status: " + self.status
     
 
 # Saving questions

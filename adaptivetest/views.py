@@ -126,8 +126,11 @@ def question_view(request, session_id):
         model = IRTModel()
         question = QuestionBank.objects.get(id=question_id)
         is_correct = (user_answer == question.correct_answer)
+        submit_time = int(request.POST.get('submit_time'))
+        submit_time = timezone.datetime.fromtimestamp(submit_time / 1000, tz=timezone.get_current_timezone())
+        print("Question Submit Time: ", submit_time)
 
-        session.add_question(question_id, is_correct, user_answer, timezone.now())
+        session.add_question(question_id, is_correct, user_answer, submit_time)
         model.update_theta(session)
 
         next_question = model.get_next_question(session)
@@ -171,14 +174,16 @@ def test_results(request, session_id):
 
     return render(request, 'results.html', {
         'session': session,
-        'total_questions': total_questions,
+        'correct_questions': correct_answers,
         'catboost': for_catboost[::-1]
     })
 
-# In template
-def view_stats(request):
+def get_stats(filtered=[]):
     """Display comprehensive statistics for all sessions"""
-    all_sessions = TestSession.objects.all().order_by('-start_time')
+    if filtered:
+        all_sessions = TestSession.objects.filter(id__in=filtered).order_by('-start_time')
+    else:
+        all_sessions = TestSession.objects.order_by('-start_time')
     session_stats = []
     
     # Collect stats for each session
@@ -204,14 +209,16 @@ def view_stats(request):
             # Average statistics across all sessions
             overall_stats = {
                 'total_sessions': len(all_stats),
+                # 'total_questions_answered': sum([s['total_questions'] for s in all_stats]),
                 'avg_questions_per_session': round(statistics.mean([s['total_questions'] for s in all_stats]), 1),
                 'avg_accuracy': round(statistics.mean([s['percent_correct'] for s in all_stats]), 1),
                 'avg_time_per_question': round(statistics.mean([s['avg_time_per_question'] for s in all_stats]), 2),
                 'avg_time_syn': round(statistics.mean([s['avg_time_syn'] for s in all_stats if s['avg_time_syn'] > 0]), 2),
                 'avg_time_wic': round(statistics.mean([s['avg_time_wic'] for s in all_stats if s['avg_time_wic'] > 0]), 2),
-                'total_questions_answered': sum([s['total_questions'] for s in all_stats]),
-                'total_syn_questions': sum([s['total_syn_questions'] for s in all_stats]),
-                'total_wic_questions': sum([s['total_wic_questions'] for s in all_stats]),
+                # 'total_syn_questions': sum([s['total_syn_questions'] for s in all_stats]),
+                # 'total_wic_questions': sum([s['total_wic_questions'] for s in all_stats]),
+                'avg_syn_per_session': round(statistics.mean([s['total_syn_questions'] for s in all_stats if s['total_syn_questions'] > 0]), 1),
+                'avg_wic_per_session': round(statistics.mean([s['total_wic_questions'] for s in all_stats if s['total_wic_questions'] > 0]), 1),
                 # 'syn_accuracy': round(statistics.mean([s['syn_percent_correct'] for s in all_stats if s['syn_percent_correct'] > 0]), 1),
                 # 'wic_accuracy': round(statistics.mean([s['wic_percent_correct'] for s in all_stats if s['wic_percent_correct'] > 0]), 1),
             }
@@ -249,4 +256,19 @@ def view_stats(request):
         'has_data': len(session_stats) > 0,
     }
     
+    return context
+# In template
+def view_all_stats(request):
+    context = get_stats()
     return render(request, 'stats.html', context)
+
+def view_tester_stats(request):
+    context = get_stats([26, 28, 34, 35, 36])
+    return render(request, 'stats.html', context)
+
+def view_individual_stats(request, session_id):
+    session = TestSession.objects.get(id=session_id)
+    session_info = get_stats([session_id])['session_stats'][0]
+    details = session.get_details()
+    return render(request, 'individual_stats.html', {'details': details, 'session_info': session_info})
+

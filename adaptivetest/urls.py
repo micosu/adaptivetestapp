@@ -24,5 +24,7 @@ urlpatterns = [
     path('results/<int:session_id>/', views.test_results, name='results'),
 
     # Stats
-    path('stats', views.view_stats, name="stats")
+    path('stats', views.view_all_stats, name="stats"),
+    path('tester-stats', views.view_tester_stats, name="tester-stats"),
+    path('individual-stats/<int:session_id>/', views.view_individual_stats, name="individual-stats")
 ]

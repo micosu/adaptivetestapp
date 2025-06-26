@@ -93,12 +93,12 @@ class TestSession(models.Model):
         print("Initial theta is:", round(theta, 2))
         return round(theta, 2)
     
-    def add_question(self, question_id, is_correct, user_answer, answered_time):
+    def add_question(self, question_id, is_correct, user_answer, question_duration):
         answered = self.answered_questions  # Retrieve current list
         answered.append({"question_id": question_id, 
                          "is_correct": is_correct, 
                          "user_answer": user_answer,
-                         "answered_time": answered_time.isoformat()})  # Append new entry
+                         "question_duration": question_duration})  # Append new entry
         print(answered)
         # self.answered_questions = answered  # Update field
         self.save()
@@ -130,26 +130,30 @@ class TestSession(models.Model):
         
         for i, question_data in enumerate(self.answered_questions):
             # Parse the answered_time from ISO format
-            answered_time = datetime.fromisoformat(question_data["answered_time"])
-            if answered_time.tzinfo is None:
-                answered_time = timezone.make_aware(answered_time)
-            
-            # Calculate time to answer this question
-            if i == 0:
-                # First question: time from start to answer
-                time_to_answer = (answered_time - self.start_time).total_seconds()
+
+            if "answered_time" in question_data:
+                answered_time = datetime.fromisoformat(question_data["answered_time"])
+                if answered_time.tzinfo is None:
+                    answered_time = timezone.make_aware(answered_time)
+                
+                # Calculate time to answer this question
+                if i == 0:
+                    # First question: time from start to answer
+                    time_to_answer = (answered_time - self.start_time).total_seconds()
+                else:
+                    # Subsequent questions: time from previous answer to this answer
+                    prev_answered_time = datetime.fromisoformat(self.answered_questions[i-1]["answered_time"])
+                    if prev_answered_time.tzinfo is None:
+                        prev_answered_time = timezone.make_aware(prev_answered_time)
+                    time_to_answer = (answered_time - prev_answered_time).total_seconds()
+                
+                # Get question object
+                
             else:
-                # Subsequent questions: time from previous answer to this answer
-                prev_answered_time = datetime.fromisoformat(self.answered_questions[i-1]["answered_time"])
-                if prev_answered_time.tzinfo is None:
-                    prev_answered_time = timezone.make_aware(prev_answered_time)
-                time_to_answer = (answered_time - prev_answered_time).total_seconds()
+                time_to_answer = question_data["question_duration"]
             
-            # Get question object
+            # print(repr(question_data["user_answer"]))
             question = QuestionBank.objects.get(id=question_data['question_id'])
-            
-            print(repr(question_data["user_answer"]))
-            
             stats.append({
                 'question_id': question.id,
                 'question_text': question.text, 

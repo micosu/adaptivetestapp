@@ -107,44 +107,56 @@ def question_view(request, session_id):
     if request.method == 'POST':
         question_id = session.current_question.id
         user_answer = request.POST.get('answer')
+        time_limit = int(request.POST.get('time_limit'))
 
         # Check remaining time
         if session.start_time:
             elapsed = (timezone.now() - session.start_time).total_seconds() * 1000
-            time_remaining = 2.3 * 60 * 1000 - elapsed
+            time_remaining = time_limit - elapsed
         else:
-            time_remaining = 2.3 * 60 * 1000
+            time_remaining = time_limit
 
-        # print("User answer: ", repr(user_answer))
-
+        # Handle timing and answers as before...
         model = IRTModel()
         question = QuestionBank.objects.get(id=question_id)
         is_correct = (user_answer == question.correct_answer)
+        
+        # Your existing timestamp handling...
+        start_time = int(request.POST.get('start_time'))
+        start_time = timezone.datetime.fromtimestamp(start_time / 1000, tz=timezone.get_current_timezone())
         submit_time = int(request.POST.get('submit_time'))
         submit_time = timezone.datetime.fromtimestamp(submit_time / 1000, tz=timezone.get_current_timezone())
-        print("Question Submit Time: ", submit_time)
-        
-
-        session.add_question(question_id, is_correct, user_answer, submit_time)
-        model.update_theta(session)
+        question_duration_seconds = (submit_time - start_time).total_seconds()
 
         if time_remaining <= 0:
             session.end_time = timezone.now()
             session.save()
-            return redirect('results', session_id=session.id)
+            # Return JSON for AJAX
+            return JsonResponse({
+                'expired': True, 
+                'redirect_url': f'/results/{session.id}'
+            })
+        
+        session.add_question(question_id, is_correct, user_answer, question_duration_seconds)
+        model.update_theta(session)
 
         next_q = model.get_next_question(session)
         if next_q:
             session.current_question = next_q
             session.save()
-            return render(request, 'question.html', {
-                'session_id': session.id,
-                'question': next_q,
+            # Return JSON with next question URL
+            return JsonResponse({
+                'expired': False,
+                'redirect_url': f'/question/{session.id}/'
             })
-
-        session.end_time = timezone.now()
-        session.save()
-        return redirect('results', session_id=session.id)
+        else:
+            # No more questions
+            session.end_time = timezone.now()
+            session.save()
+            return JsonResponse({
+                'expired': False,
+                'redirect_url': f'/results/{session.id}'
+            })
 
     # GET request
     return render(request, 'question.html', {
@@ -152,6 +164,20 @@ def question_view(request, session_id):
         'question': session.current_question,
     })
 
+def check_session_status(request, session_id):
+    session = TestSession.objects.get(id=session_id)
+    time_limit = int(request.GET.get('time_limit'))
+    if session.start_time:
+        elapsed = (timezone.now() - session.start_time).total_seconds() * 1000
+        time_remaining = time_limit - elapsed  # Your time limit in ms
+        is_expired = time_remaining <= 0
+    else:
+        is_expired = False
+    
+    return JsonResponse({
+        'expired': is_expired,
+        'redirect_url': f'/results/{session.id}' if is_expired else None
+    })
 
 # ------------------------
 # Results

@@ -34,10 +34,6 @@
   <div id="vignette-overlay" class="vignette hidden"></div>
   <div id="countdown-timer"></div>
 
-  {% if is_last %}
-    <img src="{% static 'adaptivetest/images/finishline.png' %}" class="finishline" alt="Finish Line">
-  {% endif %}
-
   <div id="progress-container">
     <div id="progress-fill"></div>
     <img id="progress-flag" src="{% static 'adaptivetest/images/flag.png' %}" alt="Finish" />
@@ -56,7 +52,9 @@
 
   <form id="question-form" method="POST" action="{% url 'question' session_id %}">
     {% csrf_token %}
+    <input type="hidden" name="start_time" id="start_time">
     <input type="hidden" name="submit_time" id="submit_time">
+    <input type="hidden" name="time_limit" id="time_limit">
     {% for label, choice_text in question.choices.items %}
       <label class="choice-label {% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}">
         <input id="form_answer" type="radio" name="answer" value="{{ label }}" required>
@@ -91,7 +89,7 @@
   const questionType = "{{ question.type|escapejs }}";
   const sessionId = document.getElementById('session-data').dataset.sessionId;
 
-  const GLOBAL_TIME_LIMIT = 140 * 1000;
+  const GLOBAL_TIME_LIMIT = 5 * 1000;
   const globalKey = `quizStartTime_${sessionId}`;
 
   let globalStart = parseInt(sessionStorage.getItem(globalKey));
@@ -109,7 +107,70 @@
     });
   }
 
-  const questionTimeLimit = 6000;
+  // Centralized AJAX form submission function
+  const submitFormAjax = () => {
+    console.log("submitFormAjax called - start");
+    
+    if (globalTimeExpired) {
+      console.log("submitFormAjax - early return due to globalTimeExpired");
+      return;
+    }
+    
+    console.log("submitFormAjax - proceeding");
+    
+    const form = document.getElementById('question-form');
+    const formData = new FormData(form);
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    
+    // Debug: log what we're sending
+    console.log("Form action:", form.action);
+    console.log("FormData contents:");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}: ${value}`);
+    }
+    
+    fetch(form.action, {
+      method: 'POST',
+      body: formData,
+      headers: {
+        'X-CSRFToken': csrfToken
+      }
+    })
+    .then(response => {
+      console.log("Response status:", response.status);
+      console.log("Response headers:", response.headers);
+      
+      // Check if response is actually JSON
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.indexOf("application/json") !== -1) {
+        return response.json();
+      } else {
+        console.log("Response is not JSON, falling back to form submission");
+        throw new Error("Non-JSON response");
+      }
+    })
+    .then(data => {
+      console.log("JSON response:", data);
+      if (data.expired) {
+        // Session expired - trigger smooth transition
+        fadeAndRedirect();
+      } else if (data.redirect_url) {
+        // Normal progression to next question
+        window.location.href = data.redirect_url;
+      } else {
+        // Fallback - reload page
+        window.location.reload();
+      }
+    })
+    .catch(error => {
+      console.error('Submission error:', error);
+      console.log('Falling back to normal form submission');
+      // Fallback to normal form submission
+      form.submit();
+    });
+  };
+
+  const questionTimeLimit = 5000;
   const questionTimer = setTimeout(() => {
     if (submitted || globalTimeExpired) return;
     submitted = true;
@@ -142,7 +203,9 @@
 
     setTimeout(() => {
       document.getElementById('submit_time').value = Date.now();
-      document.getElementById('question-form').submit();
+      document.getElementById('time_limit').value = GLOBAL_TIME_LIMIT;
+      console.log("Question timeout - calling submitFormAjax");
+      submitFormAjax(); // Use AJAX instead of direct submit
     }, 1000);
   }, questionTimeLimit);
 
@@ -163,32 +226,34 @@
   };
 
   function fadeAndRedirect() {
-  // Start fading the body
-  document.body.classList.add('fade-out');
-
-  // Show image shortly after fade begins
-  setTimeout(() => {
+    // Prevent any further submissions
+    submitted = true;
+    globalTimeExpired = true;
+    
+    // Start fading the body
+    
     const image = document.getElementById('times-up-image');
-    if (image) {
-      image.classList.remove('hidden');
-      image.classList.add('show');
-    }
-  }, 300); // image appears just after fade starts
+      if (image) {
+        image.classList.remove('hidden');
+        image.classList.add('show');
+      }
 
-  // Delay redirect so the image stays visible longer (e.g., 2500ms total)
-  setTimeout(() => {
-    window.location.href = `/results/${sessionId}`;
-  }, 2500);
-}
+    // Show image shortly after fade begins
+    setTimeout(() => {
+      document.body.classList.add('fade-out');
+    }, 1000);
 
-
-console.log("Time's up: showing image and fading...");
+    // Delay redirect so the image stays visible longer
+    setTimeout(() => {
+      window.location.href = `/results/${sessionId}`;
+    }, 2500);
+  }
 
   const submitWithDelay = () => {
     if (globalTimeExpired) return;
     setTimeout(() => {
-      document.getElementById('submit_time').value = Date.now();
-      document.getElementById('question-form').submit();
+      console.log("submitWithDelay - calling submitFormAjax");
+      submitFormAjax(); // Use AJAX instead of direct submit
       vignette.classList.remove('show');
       setTimeout(() => vignette.classList.add('hidden'), 400);
     }, 600);
@@ -247,24 +312,39 @@ console.log("Time's up: showing image and fading...");
     radio.addEventListener('change', () => handleSubmit(radio.value, idx));
   });
 
+  // Simplified timers - remove the duplicate globalUpdater
   const globalUpdater = setInterval(() => {
-    const elapsed = Date.now() - globalStart;
     updateGlobalProgress();
-    if (elapsed >= GLOBAL_TIME_LIMIT && !globalTimeExpired) {
-      globalTimeExpired = true;
-      clearInterval(globalUpdater);
-      sessionStorage.removeItem(globalKey);
-      console.log("[GAME END] Time's up at", elapsed, "ms");
-      fadeAndRedirect();
-    }
-  }, 2500);
+  }, 1000); // Update more frequently for smoother progress
+
+  // Session checker for backend-controlled timing
+  const sessionChecker = setInterval(() => {
+    if (submitted || globalTimeExpired) return; // Don't check if already handling submission
+    
+    fetch(`/check-session-status/${sessionId}/?time_limit=${GLOBAL_TIME_LIMIT}`)
+      .then(r => r.json())
+      .then(data => {
+        if (data.expired) {
+          clearInterval(sessionChecker);
+          clearInterval(globalUpdater);
+          fadeAndRedirect();
+        }
+      })
+      .catch(error => {
+        console.error('Session check error:', error);
+      });
+  }, 1000);
 
   updateGlobalProgress();
-  // For submit times
+  document.getElementById('start_time').value = Date.now();
+
+  // Click handler for setting timestamps (keep this for timing accuracy)
   document.getElementById('question-form').addEventListener('click', function(e) {
-    // Capture timestamp in milliseconds since epoch
-    document.getElementById('submit_time').value = Date.now();
-    console.log("Form Clicked!!")
+    if (e.target.type === 'radio') {
+      document.getElementById('time_limit').value = GLOBAL_TIME_LIMIT;
+      document.getElementById('submit_time').value = Date.now();
+      console.log("Form Clicked!!");
+    }
   });
 </script>
 {% endblock %}

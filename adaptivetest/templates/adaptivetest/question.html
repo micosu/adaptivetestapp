@@ -56,6 +56,7 @@
 
   <form id="question-form" method="POST" action="{% url 'question' session_id %}">
     {% csrf_token %}
+    <input type="hidden" name="submit_time" id="submit_time">
     {% for label, choice_text in question.choices.items %}
       <label class="choice-label {% if forloop.counter0 == 0 %}left{% elif forloop.counter0 == 1 %}middle{% else %}right{% endif %}">
         <input type="radio" name="answer" value="{{ label }}" required>

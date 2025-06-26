@@ -11,6 +11,8 @@ class QuestionBank(models.Model):
     text = models.TextField()
     choices = models.JSONField()  # stores options as a dict
     correct_answer = models.CharField(max_length=2)  # 'A', 'B', 'C', etc.
+    # antonym = models.CharField(max_length=2, null=True, blank=True)
+    # unrelated = models.CharField(max_length=2, null=True, blank=True)
     QUESTION_TYPES = (('syn', 'Synonym'), ('wic', 'Word In Context'))
     question_type = models.CharField(max_length=20, choices=QUESTION_TYPES)
 
@@ -146,13 +148,15 @@ class TestSession(models.Model):
             # Get question object
             question = QuestionBank.objects.get(id=question_data['question_id'])
             
-            stats.append([
-                question.text, 
-                question_data["is_correct"], 
-                question.choices[question_data["user_answer"]] if question_data["user_answer"] else "None", 
-                time_to_answer,
-                question.question_type
-            ])
+            stats.append({
+                'question_id': question.id,
+                'question_text': question.text, 
+                'question_correct': question_data["is_correct"], 
+                'user_answer': question.choices[question_data["user_answer"]] if question_data["user_answer"] else "None", 
+                'correct_answer': question.choices[question.correct_answer],
+                'time_to_answer': round(time_to_answer, 3),
+                'question_type': question.question_type
+            })
         
         return stats
     
@@ -173,16 +177,18 @@ class TestSession(models.Model):
                 'syn_percent_correct': 0,
                 'wic_percent_correct': 0,
                 'total_time': 0,
-                'fastest_question': 0,
-                'slowest_question': 0,
+                'syn_missed': 0,
+                'wic_missed': 0,
+                'syn_incorrect': 0,
+                'wic_incorrect': 0,
             }
         # Basic stats
         total_questions = len(details)
-        correct_answers = sum(1 for x in details if x[1])  # x[1] is is_correct
+        correct_answers = sum(1 for x in details if x['question_correct'])  # x[1] is is_correct
         percent_correct = (correct_answers / total_questions * 100) if total_questions > 0 else 0
         
         # Time stats
-        times = [x[3] for x in details]  # x[3] is time_to_answer
+        times = [x['time_to_answer'] for x in details]  # x[3] is time_to_answer
         assert(times)
         avg_time_per_question = statistics.mean(times) if times else 0
         total_time = sum(times)
@@ -190,22 +196,24 @@ class TestSession(models.Model):
         slowest_question = max(times) if times else 0
         
         # Question type specific stats
-        syn_questions = [x for x in details if x[4] == 'syn']  # x[4] is question_type
-        wic_questions = [x for x in details if x[4] == 'wic']
+        syn_questions = [x for x in details if x['question_type'] == 'syn']  # x[4] is question_type
+        wic_questions = [x for x in details if x['question_type'] == 'wic']
         
         # SYN stats
         total_syn_questions = len(syn_questions)
-        syn_times = [x[3] for x in syn_questions]
+        syn_times = [x['time_to_answer'] for x in syn_questions]
         avg_time_syn = statistics.mean(syn_times) if syn_times else 0
-        syn_correct = sum(1 for x in syn_questions if x[1])
-        syn_percent_correct = (syn_correct / total_syn_questions * 100) if total_syn_questions > 0 else 0
+        syn_correct = sum(1 for x in syn_questions if x['question_correct'])
+        syn_missed = 0
+        # syn_percent_correct = (syn_correct / total_syn_questions * 100) if total_syn_questions > 0 else 0
         
         # WIC stats
         total_wic_questions = len(wic_questions)
-        wic_times = [x[3] for x in wic_questions]
+        wic_times = [x['time_to_answer'] for x in wic_questions]
         avg_time_wic = statistics.mean(wic_times) if wic_times else 0
-        wic_correct = sum(1 for x in wic_questions if x[1])
-        wic_percent_correct = (wic_correct / total_wic_questions * 100) if total_wic_questions > 0 else 0
+        wic_correct = sum(1 for x in wic_questions if x['question_correct'])
+        wic_missed = 0
+        # wic_percent_correct = (wic_correct / total_wic_questions * 100) if total_wic_questions > 0 else 0
         
         return {
             'total_questions': total_questions,
@@ -218,9 +226,9 @@ class TestSession(models.Model):
             'total_wic_questions': total_wic_questions,
             'syn_correct': syn_correct,
             'wic_correct': wic_correct,
-            # 'syn_percent_correct': round(syn_percent_correct, 1),
-            # 'wic_percent_correct': round(wic_percent_correct, 1),
+            'syn_missed': syn_missed,
+            'wic_missed': wic_missed,
+            'syn_incorrect': total_syn_questions - (syn_correct + syn_missed),
+            'wic_incorrect': total_wic_questions - (wic_correct + wic_missed),
             'total_time': round(total_time, 2),
-            'fastest_question': round(fastest_question, 2),
-            'slowest_question': round(slowest_question, 2),
         }

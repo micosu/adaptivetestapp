@@ -118,8 +118,11 @@ def question_view(request, session_id):
         model = IRTModel()
         question = QuestionBank.objects.get(id=question_id)
         is_correct = (user_answer == question.correct_answer)
+        submit_time = int(request.POST.get('submit_time'))
+        submit_time = timezone.datetime.fromtimestamp(submit_time / 1000, tz=timezone.get_current_timezone())
+        print("Question Submit Time: ", submit_time)
 
-        session.add_question(question_id, is_correct, user_answer, timezone.now())
+        session.add_question(question_id, is_correct, user_answer, submit_time)
         model.update_theta(session)
 
         if time_remaining <= 0:
@@ -160,71 +163,106 @@ def test_results(request, session_id):
     ][::-1]
     return render(request, 'results.html', {
         'session': session,
-        'total_questions': len(question_ids),
-        'catboost': catboost
+        'correct_questions': correct_answers,
+        'catboost': for_catboost[::-1]
     })
 
-
-# ------------------------
-# Stats Page
-# ------------------------
-
-def view_stats(request):
-    sessions = TestSession.objects.all().order_by('-start_time')
-    stats_all = []
-
-    for s in sessions:
-        stat = s.get_stats()
-        stats_all.append({
-            'session': s,
-            'stats': stat,
-            'user': s.user,
-            'id': s.id,
-            'start_time': s.start_time,
-            'grade': s.grade,
-            'age': s.age,
-        })
-
-    if not stats_all:
-        return render(request, 'stats.html', {'has_data': False})
-
-    valid_stats = [s['stats'] for s in stats_all if s['stats']['total_questions'] > 0]
-    if not valid_stats:
-        return render(request, 'stats.html', {'has_data': False})
-
-    overall = {
-        'total_sessions': len(valid_stats),
-        'avg_questions_per_session': round(statistics.mean(s['total_questions'] for s in valid_stats), 1),
-        'avg_accuracy': round(statistics.mean(s['percent_correct'] for s in valid_stats), 1),
-        'avg_time_per_question': round(statistics.mean(s['avg_time_per_question'] for s in valid_stats), 2),
-        'avg_time_syn': round(statistics.mean(s['avg_time_syn'] for s in valid_stats if s['avg_time_syn'] > 0), 2),
-        'avg_time_wic': round(statistics.mean(s['avg_time_wic'] for s in valid_stats if s['avg_time_wic'] > 0), 2),
-        'total_questions_answered': sum(s['total_questions'] for s in valid_stats),
-        'total_syn_questions': sum(s['total_syn_questions'] for s in valid_stats),
-        'total_wic_questions': sum(s['total_wic_questions'] for s in valid_stats),
-    }
-
-    by_grade = {}
-    for s in stats_all:
-        grade = s['grade']
-        if grade not in by_grade:
-            by_grade[grade] = []
-        if s['stats']['total_questions'] > 0:
-            by_grade[grade].append(s['stats'])
-
-    grade_averages = {
-        g: {
-            'count': len(lst),
-            'avg_accuracy': round(statistics.mean(s['percent_correct'] for s in lst), 1),
-            'avg_time': round(statistics.mean(s['avg_time_per_question'] for s in lst), 2),
-            'avg_questions': round(statistics.mean(s['total_questions'] for s in lst), 1),
+def get_stats(filtered=[]):
+    """Display comprehensive statistics for all sessions"""
+    if filtered:
+        all_sessions = TestSession.objects.filter(id__in=filtered).order_by('-start_time')
+    else:
+        all_sessions = TestSession.objects.order_by('-start_time')
+    session_stats = []
+    
+    # Collect stats for each session
+    for session in all_sessions:
+        stats = session.get_stats()
+        session_info = {
+            'session': session,
+            'stats': stats,
+            'user': session.user,
+            'id': session.id,
+            'start_time': session.start_time,
+            'grade': session.grade,
+            'age': session.age,
         }
-        for g, lst in by_grade.items() if lst
-    }
-
-    return render(request, 'stats.html', {
-        'session_stats': stats_all,
-        'overall_stats': overall,
+        session_stats.append(session_info)
+    
+    # Calculate overall aggregate statistics
+    if session_stats:
+        # Overall performance stats
+        all_stats = [s['stats'] for s in session_stats if s['stats']['total_questions'] > 0]
+        
+        if all_stats:
+            # Average statistics across all sessions
+            time_syn = [s['avg_time_syn'] for s in all_stats if s['avg_time_syn'] > 0]
+            time_wic = [s['avg_time_wic'] for s in all_stats if s['avg_time_wic'] > 0]
+            syn_counts = [s['total_syn_questions'] for s in all_stats if s['total_syn_questions'] > 0]
+            wic_counts = [s['total_wic_questions'] for s in all_stats if s['total_wic_questions'] > 0]
+            
+            overall_stats = {
+                'total_sessions': len(all_stats),
+                # 'total_questions_answered': sum([s['total_questions'] for s in all_stats]),
+                'avg_questions_per_session': round(statistics.mean([s['total_questions'] for s in all_stats]), 1),
+                'avg_accuracy': round(statistics.mean([s['percent_correct'] for s in all_stats]), 1),
+                'avg_time_per_question': round(statistics.mean([s['avg_time_per_question'] for s in all_stats]), 2),
+                'avg_time_syn': round(statistics.mean(time_syn), 2) if time_syn else 0,
+                'avg_time_wic': round(statistics.mean(time_wic), 2) if time_wic else 0,
+                # 'total_syn_questions': sum([s['total_syn_questions'] for s in all_stats]),
+                # 'total_wic_questions': sum([s['total_wic_questions'] for s in all_stats]),
+                'avg_syn_per_session': round(statistics.mean(syn_counts), 1) if syn_counts else 0,
+                'avg_wic_per_session': round(statistics.mean(wic_counts), 1) if wic_counts else 0,
+                # 'syn_accuracy': round(statistics.mean([s['syn_percent_correct'] for s in all_stats if s['syn_percent_correct'] > 0]), 1),
+                # 'wic_accuracy': round(statistics.mean([s['wic_percent_correct'] for s in all_stats if s['wic_percent_correct'] > 0]), 1),
+            }
+            
+            # Grade-based statistics
+            grade_stats = {}
+            for session_info in session_stats:
+                grade = session_info['grade']
+                if grade not in grade_stats:
+                    grade_stats[grade] = []
+                if session_info['stats']['total_questions'] > 0:
+                    grade_stats[grade].append(session_info['stats'])
+            
+            # Calculate averages per grade
+            grade_averages = {}
+            for grade, stats_list in grade_stats.items():
+                if stats_list:
+                    grade_averages[grade] = {
+                        'count': len(stats_list),
+                        'avg_accuracy': round(statistics.mean([s['percent_correct'] for s in stats_list]), 1),
+                        'avg_time': round(statistics.mean([s['avg_time_per_question'] for s in stats_list]), 2),
+                        'avg_questions': round(statistics.mean([s['total_questions'] for s in stats_list]), 1),
+                    }
+        else:
+            overall_stats = {}
+            grade_averages = {}
+    else:
+        overall_stats = {}
+        grade_averages = {}
+    
+    context = {
+        'session_stats': session_stats,
+        'overall_stats': overall_stats,
         'grade_averages': grade_averages,
-        'has_data': True,
-    })
+        'has_data': len(session_stats) > 0,
+    }
+    
+    return context
+# In template
+def view_all_stats(request):
+    context = get_stats()
+    return render(request, 'stats.html', context)
+
+def view_tester_stats(request):
+    context = get_stats([26, 28, 34, 35, 36])
+    return render(request, 'stats.html', context)
+
+def view_individual_stats(request, session_id):
+    session = TestSession.objects.get(id=session_id)
+    session_info = get_stats([session_id])['session_stats'][0]
+    details = session.get_details()
+    return render(request, 'individual_stats.html', {'details': details, 'session_info': session_info})
+

@@ -307,7 +307,7 @@ def view_all_stats(request):
     return render(request, 'stats.html', context)
 
 def view_tester_stats(request):
-    context = get_stats([26, 28, 34, 35, 36])
+    context = get_stats([26, 28, 34, 35, 36, 64, 66, 67, 71, 72, 73])
     return render(request, 'stats.html', context)
 
 def view_individual_stats(request, session_id):

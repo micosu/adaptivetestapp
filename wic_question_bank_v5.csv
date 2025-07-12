@@ -1,13 +1,13 @@
 text,choices,correct_answer,discrimination,difficulty,guessing
 We hung a picture on the ______ .,"{""A"": ""FLOOR"", ""B"": ""WALL"", ""C"": ""CEILING""}",B,1.051323253598475,-0.13102937794800606,0.3071359586382427
-Please ______ what changes.,"{""A"": ""NOTE"", ""B"": ""SKIP"", ""C"": ""FORGET""}",A,1.0701227594836358,0.5999533146622431,0.3140267777478087
-Daily ______ helps you stay healthy and strong.,"{""A"": ""EATING"", ""B"": ""SLEEP"", ""C"": ""EXERCISE""}",C,1.0493489419447684,0.6114042855959575,0.30502700041100633
+Please ______ the correct answer on your paper.,"{""A"": ""NOTE"", ""B"": ""SKIP"", ""C"": ""FORGET""}",A,1.0701227594836358,0.5999533146622431,0.3140267777478087
+Daily ______ helps you become stronger and stronger.,"{""A"": ""EATING"", ""B"": ""SLEEP"", ""C"": ""EXERCISE""}",C,1.0493489419447684,0.6114042855959575,0.30502700041100633
 "She tried to open the jar, but she was ______ to do it.","{""A"": ""ABLE"", ""B"": ""UNABLE"", ""C"": ""WILLING""}",B,1.0401153853509697,1.0507496599593937,0.29962024259389874
-"I forgot to lock the door, so it’s my ______.","{""A"": ""BLAME"", ""B"": ""FAME"", ""C"": ""CLAIM""}",A,1.1644005408263456,0.7499019890864869,0.2983161204770389
+"I forgot to lock the door, so you can ______ me.","{""A"": ""BLAME"", ""B"": ""FAME"", ""C"": ""CLAIM""}",A,1.1644005408263456,0.7499019890864869,0.2983161204770389
 The charity collected money to help the _____ of the fire.,"{""A"": ""SUSPECT"", ""B"": ""VICTIM"", ""C"": ""LEADER""}",B,1.183855401446808,1.4272507361997506,0.30417611537721967
 Please ______ your hand if you know the answer.,"{""A"": ""RAISE"", ""B"": ""WRITE"", ""C"": ""CLOSE""}",A,1.071372549339036,0.7831922620466226,0.30943390018427097
 I got to ______ the play.,"{""A"": ""HEAR"", ""B"": ""WITNESS"", ""C"": ""IGNORE""}",B,1.1538886563100217,1.311484387472738,0.3014573531027327
-It was the firefighter’s ______ to help.,"{""A"": ""TRICK"", ""B"": ""PLAN"", ""C"": ""DUTY""}",C,1.0919516533686493,0.9391492351972133,0.30323881878166115
+It was the firefighter's ______ to help.,"{""A"": ""TRICK"", ""B"": ""PLAN"", ""C"": ""DUTY""}",C,1.0919516533686493,0.9391492351972133,0.30323881878166115
 The teacher will ______ the winner tomorrow.,"{""A"": ""COUNT"", ""B"": ""ANNOUNCE"", ""C"": ""GUESS""}",B,1.1503914489793463,1.1262631706838606,0.3085044606628953
 We need to ______ this argument.,"{""A"": ""RESOLVE"", ""B"": ""REACT"", ""C"": ""REFUSE""}",A,1.1547753272629069,1.7912851692645309,0.2999303526948281
 She made a polite _____ to leave early.,"{""A"": ""QUESTION"", ""B"": ""REACT"", ""C"": ""REQUEST""}",C,1.16661935610199,1.303426167517289,0.3075084125002573

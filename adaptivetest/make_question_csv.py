@@ -258,6 +258,6 @@ def main(input_f, output_f, wic = False):
 
 if __name__ == "__main__":
     wic = False
-    input_f = "synonyms_v4.csv"
-    output_f = "synonym_question_bank_v4.csv"
+    input_f = "synonyms_v5.csv"
+    output_f = "synonym_question_bank_v5.csv"
     main(input_f, output_f, wic)

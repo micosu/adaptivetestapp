@@ -7,6 +7,8 @@ import numpy as np
 import statistics
 
 # Create your models here.
+# from adaptivetest.models import QuestionBank
+# QuestionBank.objects.filter(status="active").update(status="retired")
 class QuestionBank(models.Model):
     text = models.TextField()
     choices = models.JSONField()  # stores options as a dict
@@ -19,7 +21,7 @@ class QuestionBank(models.Model):
         ('active', 'Active'),
         ('retired', 'Retired'),
     ], default='active')
-    version = models.CharField(max_length=20, blank=True, default='v3-6/26/2025') # vNum-Date
+    version = models.CharField(max_length=20, blank=True, default='v5-7/11/2025') # vNum-Date
     # IRT parameters
     discrimination = models.FloatField(default=1.0)  # a parameter
     difficulty = models.FloatField()  # b parameter
